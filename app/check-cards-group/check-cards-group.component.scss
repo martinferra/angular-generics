@@ -1,0 +1,35 @@
+.checkCardsContainer {
+    /* Estilos copiados del componente mat-card (Angular Material) */
+    box-shadow: 0 2px 1px -1px rgba(0,0,0,.2),0 1px 1px 0 rgba(0,0,0,.14),0 1px 3px 0 rgba(0,0,0,.12);
+    transition: box-shadow 280ms cubic-bezier(.4,0,.2,1);
+    position:relative;
+    border-radius:4px;
+    font-family: Exo;
+    background: #fff;
+    color: rgba(0,0,0,.87);
+    /* Fin estilos copiados de mat-card */
+    display: flex;
+    border-radius: 4px;
+    width: fit-content;
+}
+
+.checkCard {
+    margin: 10px;
+    padding-right: 5px;
+    border: 1.5px solid;
+    border-radius: 4px;
+    display: flex;
+    justify-content: center;
+}
+
+.checkCard-unchecked {
+    background-color: #eccaad;
+}
+
+.checkCard-checked {
+    background-color: #afc1d3;
+}
+
+.number {
+    margin: 5px 0px 2px 5px;
+}

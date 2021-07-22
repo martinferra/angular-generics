@@ -1,0 +1,22 @@
+<ng-container *ngIf="taskList.length">
+    <div class="launcher unselectable" [matMenuTriggerFor]="menu">
+        <span>Tareas en segundo plano ({{taskList.length}})</span>
+    </div>
+    <mat-menu #menu="matMenu" xPosition='before' class="tasksPanel">
+        <ng-container *ngIf="showClearFinalizedButton">
+            <button mat-menu-item (click)="clearFinalized()">Limpiar lista</button>
+            <mat-divider></mat-divider>
+        </ng-container>
+        <div *ngFor="let taskState of taskList" mat-menu-item class="taskEntry">
+            <span class="taskMessage">{{taskState.message}}</span>
+            <mat-progress-spinner 
+                *ngIf="showSpinner(taskState)" 
+                [mode]="spinnerMode(taskState)"
+                [value]="spinnerValue(taskState)"
+                diameter="20">
+            </mat-progress-spinner>
+            <mat-icon *ngIf="showDoneIcon(taskState)" class="done-icon">done</mat-icon>
+            <mat-icon *ngIf="taskState.error" class="error-icon">error</mat-icon>
+        </div>
+    </mat-menu>
+</ng-container>

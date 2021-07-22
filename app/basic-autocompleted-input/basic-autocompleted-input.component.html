@@ -1,0 +1,34 @@
+<mat-form-field [ngClass]="inputCssClass">
+    <mat-label *ngIf="label">{{ label }}</mat-label>
+    <input matInput #input
+        type="text"
+        [formControl]="elementCtrl"
+        [required]="required"
+        [placeholder]="placeholder"
+        [matAutocomplete]="auto"
+        [tabindex]="_tabIndex">
+    <button
+        type="button"
+        *ngIf="showEditButton" 
+        matSuffix mat-icon-button
+        [disabled]="disabled"
+        tabindex="-1"
+        (click)="editSelectedElement(); $event.preventDefault()">
+            <mat-icon mat-list-icon>mode_edit</mat-icon>
+    </button>
+    <mat-hint *ngIf="hint">{{ hint }}</mat-hint>
+    <mat-error *ngIf="elementCtrl.hasError('noSelectedElement')">
+        {{ requiredErrorMessage }}
+    </mat-error>
+</mat-form-field>              
+<mat-autocomplete
+    #auto="matAutocomplete"
+    autoActiveFirstOption
+    [displayWith]="_displayInnerElementInInputFn"
+    [panelWidth]="panelWidth">
+    <mat-option 
+        *ngFor="let innerFilteredElement of filteredElements$ | async" 
+        [value]="innerFilteredElement">
+        <div *appStaticHtml="displayElementInList(innerFilteredElement)"></div>
+    </mat-option>
+</mat-autocomplete>

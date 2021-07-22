@@ -1,0 +1,36 @@
+::ng-deep .tasksPanel {
+    max-width: none!important;
+}
+
+.taskEntry {
+    display: flex;
+    align-items: center;
+}
+
+.taskMessage {
+    margin-right: 10px;
+}
+
+.done-icon {
+    color: #36c000e1;
+}
+
+.error-icon {
+    color: #f80707;
+}
+
+.launcher {
+    color: white;
+    font-family: 'Helvetica Neue', sans-serif;
+    font-size: 15px;
+    font-weight: initial;
+    line-height: 1;
+    text-align: center;
+    padding: 7px;
+    border: 1.5px solid;
+    border-radius: 7px;
+}
+
+.launcher:hover {
+    cursor: pointer;
+}

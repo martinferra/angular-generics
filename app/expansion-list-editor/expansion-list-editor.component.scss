@@ -1,0 +1,55 @@
+.accordion-container {
+    margin-bottom: 1em;
+}
+
+.withIcon {
+  margin-top: 10px;
+}
+
+mat-accordion .mat-form-field + .mat-form-field {
+  margin-left: 8px;
+}
+
+.mat-expansion-panel-header.editorWithErrors .mat-expansion-panel-header-description,
+.mat-expansion-panel-header.editorWithErrors .mat-expansion-panel-header-title,
+.mat-expansion-panel-header.editorWithErrors button {
+  color: rgb(238, 45, 45);
+}
+
+.addCtrGroup {
+  /* Estilos copiados del componente mat-card (Angular Material) */
+  box-shadow: 0 2px 1px -1px rgba(0,0,0,.2),0 1px 1px 0 rgba(0,0,0,.14),0 1px 3px 0 rgba(0,0,0,.12);
+  transition: box-shadow 280ms cubic-bezier(.4,0,.2,1);
+  //display:block;
+  position:relative;
+  border-radius:4px;
+  font-family: Exo;
+  background: #fff;
+  color: rgba(0,0,0,.87);
+
+  // Alineación del botón a la derecha
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+
+.subtypeRow span {
+  margin: 0;
+  font-size: 1em;
+}
+
+.subtypeRow:hover {
+  cursor: pointer;
+}
+
+.subtypeRow {  
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+  margin-left: 15px;
+ }
+
+.singleModeContainer {
+  margin-top: 10px;
+}
