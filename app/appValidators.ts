@@ -27,7 +27,7 @@ export class CustomValidators {
 
             let _regex = regex instanceof Function? regex() : regex;
 
-            const valid = _regex.test(control.value.toString().trim());
+            const valid = _regex.test(control.value.toString());
             return valid ? null : { [errorKey]: true };
         };
     }

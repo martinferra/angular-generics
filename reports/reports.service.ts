@@ -1,0 +1,41 @@
+import { Injectable } from '@angular/core';
+import { saveAs } from 'file-saver';
+import moment from 'moment';
+import { Observable, of } from 'rxjs';
+import { catchError, map, startWith, tap } from 'rxjs/operators';
+import { TaskState } from '../models/interfaces/taskState.interface';
+import { AsyncTasksService } from './async-tasks.service';
+
+@Injectable()
+export class ReportsService {
+
+  constructor(
+    private asyncTasksService: AsyncTasksService
+  ) { }
+
+  public getReport(reportId: string, ...reportParams: any[]) : Observable<TaskState> {
+
+    const fileName = reportId+'_'+moment().format('YYYYMMDDHHmmss')+'.xlsx';
+
+    return this.asyncTasksService.runTask('getReport', {reportId, reportParams}).pipe(
+      tap((fileContent: any) => {
+        saveAs(fileContent, fileName);
+      }),
+      map(()=>{ return {
+        message:'Descarga completa:  '+fileName,
+        error: false
+      }}),
+      catchError((error)=>{
+        console.error(error);
+        return of({
+          message:'Error en la descarga:  '+fileName,
+          error: true
+        });
+      }),
+      startWith({
+        message:'Descargando:  '+fileName,
+        error: false
+      }),
+    )
+  }
+}

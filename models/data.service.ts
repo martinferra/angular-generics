@@ -131,6 +131,7 @@ export abstract class DataService {
   public find(query: any = {}, method: string = 'find') : Observable<any> {
     return this.http.post(this.getUri(method), query).pipe(
       map((plainObject: any) => {
+        if(!plainObject) return plainObject;
         if(!(plainObject.documents && plainObject.count)) {
           return this.convertToClassInstance(plainObject);
         } else {
