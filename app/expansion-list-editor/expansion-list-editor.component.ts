@@ -18,12 +18,12 @@ export class ExpansionListEditorComponent implements OnInit, ExpandableListCompo
 
   @Input() parentComponent: any;
   @Input() parentElement: any;
-  @Input() componentSpec;
+  @Input() componentSpec! : any;
   @Input() contextData: any = {}
-  @Input() datasource;
+  @Input() datasource!: any;
   @Input() oneRequired: boolean = false;
-  @Input() listChangeEmitter: EventEmitter<Array<any>>;
-  @Input() editingEmitter;
+  @Input() listChangeEmitter!: EventEmitter<Array<any>>;
+  @Input() editingEmitter: any;
   @Input() allowsSingleMode: boolean = false;
   @Input() cardFormat: boolean = false;
 
@@ -32,17 +32,17 @@ export class ExpansionListEditorComponent implements OnInit, ExpandableListCompo
   @Output() contextChangeEmitter: EventEmitter<any> = new EventEmitter<any>();
 
   @ViewChildren(MatExpansionPanel) 
-  expansionPanelList: QueryList<MatExpansionPanel>;
+  expansionPanelList!: QueryList<MatExpansionPanel>;
 
   @ViewChildren(EditorContainerDirective) 
-  editorContainerList: QueryList<EditorContainerDirective>;
+  editorContainerList!: QueryList<EditorContainerDirective>;
 
-  public showDeleteButtonValues$: Observable<any[]>
+  public showDeleteButtonValues$!: Observable<any>
 
-  private editing: boolean;
+  private editing!: boolean;
   private editorComponents: Array<ExpandableComponent> = [];
   private _auxArray: Array<any> = [];
-  private datasourceIndexes: Array<number>;
+  private datasourceIndexes!: Array<number>;
   private showEntitySubtypes: boolean = false;
   private _firstEditorIsEmpty: boolean = false;
     
@@ -73,7 +73,7 @@ export class ExpansionListEditorComponent implements OnInit, ExpandableListCompo
   }
 
   private resetShowDeleteButtonValues() {
-    this.showDeleteButtonValues$ = forkJoin(this.datasource.map(elem => this.componentSpec.showDeleteButton(elem)))
+    this.showDeleteButtonValues$ = forkJoin(this.datasource.map((elem: any) => this.componentSpec.showDeleteButton(elem)))
       .pipe(tap(() => this.loadEditorsAtNextLoop()));
   }
 
@@ -88,7 +88,7 @@ export class ExpansionListEditorComponent implements OnInit, ExpandableListCompo
   }
 
   private InitializeDatasource() {
-    this.datasourceIndexes = this.datasource.map((elem,idx)=>idx)
+    this.datasourceIndexes = this.datasource.map((elem: any, idx: number)=>idx)
     if(
       this.allowsSingleMode &&
       this.componentSpec.allowsAddingElements && 
@@ -198,7 +198,7 @@ export class ExpansionListEditorComponent implements OnInit, ExpandableListCompo
     return this.allowsSingleMode && !this.entityHasSubtypes && this.datasource.length < 2
   }
 
-  private newElement(entityClass) {
+  private newElement(entityClass: any) {
     let newObj = new entityClass();
     this.datasource.push(newObj);
 
@@ -238,7 +238,7 @@ export class ExpansionListEditorComponent implements OnInit, ExpandableListCompo
     this.loadEditorsAtNextLoop(expandLast)
   }
 
-  private toggleEditing(editing) {
+  private toggleEditing(editing: boolean) {
     if(this.editing !== editing) {
       this.editing = editing;
       if(!this.singleMode) this.editingEmitter.emit(this.editing)
@@ -257,7 +257,7 @@ export class ExpansionListEditorComponent implements OnInit, ExpandableListCompo
     this.onChangedElement(editorComponent, idx);
   }
 
-  private editorHasErrors(idx): boolean {
+  private editorHasErrors(idx: number): boolean {
 
     let ret = (
       this.editorComponents && 

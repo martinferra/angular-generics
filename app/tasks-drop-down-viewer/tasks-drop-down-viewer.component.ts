@@ -10,7 +10,7 @@ import { BackgroundTasksService } from '../services/backgroundTasks/background-t
 })
 export class TasksDropDownViewerComponent implements OnInit, OnDestroy {
 
-  subscription: Subscription;
+  subscription!: Subscription;
   taskList: TaskState[] = [];
 
   constructor(
@@ -33,13 +33,13 @@ export class TasksDropDownViewerComponent implements OnInit, OnDestroy {
 
   /* Mostrar/ocultar componentes */
   showSpinner(taskState: TaskState): boolean {
-    return !taskState.error && taskState.progress<0;
+    return !taskState.error && (!taskState.progress || taskState.progress<0);
   }
   spinnerMode(taskState: TaskState): string {
-    return taskState.progress<0? 'indeterminate' : 'determinate';
+    return !taskState.progress || taskState.progress<0? 'indeterminate' : 'determinate';
   }
   spinnerValue(taskState: TaskState): number {
-    return taskState.progress>0? taskState.progress : 0;
+    return taskState.progress && taskState.progress>0? taskState.progress : 0;
   }
   showDoneIcon(taskState: TaskState): boolean {
     return !taskState.error && taskState.progress===100;

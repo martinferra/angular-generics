@@ -13,7 +13,7 @@ export class ComponentResolver {
   private componentsMap: Map<string, Function>
 
   // Singleton pattern
-  private static _instance
+  private static _instance: ComponentResolver
   public static getInstance() {
       if(!this._instance) this._instance = new this()
       return this._instance
@@ -28,7 +28,7 @@ export class ComponentResolver {
     this.relationshipsMap[classObj['classId']+'_'+operation] = compName
   }
 
-  public setComponent(componentClass: Function, key: string = null) {
+  public setComponent(componentClass: Function, key: string) {
     if(!key) key = componentClass['classId']
     this.componentsMap[key] = componentClass
   }

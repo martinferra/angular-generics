@@ -1,6 +1,6 @@
 import { Component, Input, Output, OnInit, EventEmitter, SimpleChanges, OnChanges, ViewChild, ElementRef, AfterViewInit, forwardRef } from '@angular/core';
 import { ControlValueAccessor, FormControl, NG_VALUE_ACCESSOR } from '@angular/forms';
-import { MatDialog } from '@angular/material';
+import { MatDialog } from '@angular/material/dialog';
 
 import { map } from 'rxjs/internal/operators/map';
 import { tap } from 'rxjs/internal/operators/tap';
@@ -41,22 +41,22 @@ export class BasicAutocompletedInputComponent implements OnInit, OnChanges, Afte
   @Input() required: boolean = false;
   @Input() requiredErrorMessage: string = "";
   @Input() inputCssClass: string = "";
-  @Input() label: string;
+  @Input() label!: string;
   @Input() placeholder: string = "";
   @Input() hint: string = "";
-  @Input() panelWidth: number | string;
+  @Input() panelWidth!: number | string;
   @Input() allowEditing: boolean = false;
   @Input() contextData: any = {};
   @Input() tabIndex: number | boolean = 0;
-  @Input() entityName: string
+  @Input() entityName!: string
 
   @Output() afterViewInitEmitter: EventEmitter<any> = new EventEmitter<any>();
 
   elementCtrl = new FormControl()
-  public filteredElements$: Observable<any[]>;
+  public filteredElements$!: Observable<any[]>;
   private elementSelected: boolean = false;
 
-  @ViewChild('input', { static: false }) input: ElementRef;
+  @ViewChild('input', { static: false }) input!: ElementRef;
 
   constructor(
     public dialog: MatDialog
@@ -97,8 +97,8 @@ export class BasicAutocompletedInputComponent implements OnInit, OnChanges, Afte
     this.componentSpec = Object.assign({
       minIndividualLength: 2,
       minGlobalLength: 3,
-      getOuterElement: element => element,
-      getInnerElement: outerElement => outerElement,
+      getOuterElement: (element: any) => element,
+      getInnerElement: (outerElement: any) => outerElement,
     }, this.componentSpec || {})
 
     this.initializeFormControl();
@@ -269,7 +269,7 @@ export class BasicAutocompletedInputComponent implements OnInit, OnChanges, Afte
     } 
   }
 
-  private openDialog(element): void {
+  private openDialog(element: any): void {
 
     const dialogRef = this.dialog.open(this.editorComponentClass, {
       width: '600px',

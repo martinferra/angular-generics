@@ -16,13 +16,13 @@ export class BackgroundTasksService {
     return this._taskListEmitter;
   }
 
-  private tasksPool: Map<number, {taskState:TaskState,subscription:Subscription}> = new Map();
+  private tasksPool: Map<number, {taskState:TaskState,subscription:Subscription|undefined}> = new Map();
 
   private getTaskList(): TaskState[] {
 
-    let list = [];
+    let list: TaskState[] = [];
 
-    this.tasksPool.forEach((value: {taskState: TaskState, subscription: Subscription}, key: number)=>{
+    this.tasksPool.forEach((value: {taskState: TaskState, subscription: Subscription|undefined}, key: number)=>{
       list.push({
         taskId: key,
         message: value.taskState.message,
@@ -48,12 +48,15 @@ export class BackgroundTasksService {
   }
 
   private finalizeTask(taskId: number): void {
-    this.tasksPool.get(taskId).subscription.unsubscribe();
+    this.tasksPool.get(taskId)?.subscription?.unsubscribe();
     this.emitTaskList();
   }
 
   private updateTaskState(taskId: number, taskState: TaskState): void {
-    this.tasksPool.get(taskId).taskState = taskState;
+    let task = this.tasksPool.get(taskId);
+    if(task) {
+      task.taskState = taskState;
+    }
     this.emitTaskList();
   }
 
@@ -73,10 +76,13 @@ export class BackgroundTasksService {
         progress: 0,
         error: false
       },
-      subscription: null
+      subscription: undefined
     });
 
-    this.tasksPool.get(taskId).subscription = obs.subscribe();
+    let task = this.tasksPool.get(taskId);
+    if(task) {
+      task.subscription = obs.subscribe();
+    }
   }
 
   public subscribeToListChanges(callback: (taskList: TaskState[])=>void): Subscription {
@@ -84,8 +90,8 @@ export class BackgroundTasksService {
   }
 
   public clearFinalized(): void {
-    this.tasksPool.forEach((value: {taskState: TaskState, subscription: Subscription}, key: number)=>{
-      if(value.subscription.closed) {
+    this.tasksPool.forEach((value: {taskState: TaskState, subscription: Subscription|undefined}, key: number)=>{
+      if(value.subscription?.closed) {
         this.tasksPool.delete(key);
       }
     });

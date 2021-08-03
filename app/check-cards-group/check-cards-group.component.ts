@@ -7,11 +7,11 @@ import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 })
 export class CheckCardsGroupComponent implements OnInit {
 
-  @Input() datasource: any[];
-  @Input() title: string;
-  @Input() isChecked: (item:any)=>boolean;
-  @Input() toggleCheckState: (item:any)=>void;
-  @Input() getLabel: (item:any)=>string;
+  @Input() datasource!: any[];
+  @Input() title!: string;
+  @Input() isChecked!: (item:any)=>boolean;
+  @Input() toggleCheckState!: (item:any)=>void;
+  @Input() getLabel!: (item:any)=>string;
   @Input() maxChecked: number = 0;
   @Input() msgForMaxReached: string = "";
 

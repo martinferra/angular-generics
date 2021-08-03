@@ -1,3 +1,4 @@
+import { ComponentType } from '@angular/cdk/portal';
 import { Component, Input, OnInit, ViewChild, SimpleChanges, OnChanges, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatTable } from '@angular/material/table';
@@ -10,12 +11,12 @@ import { MatTable } from '@angular/material/table';
 })
 export class BasicListEditorComponent implements OnInit, OnChanges {
 
-  @Input() componentSpec;
-  @Input() listChangeEmitter;
+  @Input() componentSpec: any;
+  @Input() listChangeEmitter: { emit: (arg: any[]|undefined) => void; } | undefined;
   @Input() allowEdition: boolean = true;
-  @ViewChild(MatTable, { static:false }) table: MatTable<any>;
-  columns: any[] = null;
-  datasource: any[] = null;
+  @ViewChild(MatTable, { static:false }) table!: MatTable<any>;
+  columns: any[] | undefined = undefined;
+  datasource: any[] | undefined = undefined;
 
   constructor(
     private changeDetectorRef: ChangeDetectorRef,
@@ -32,35 +33,35 @@ export class BasicListEditorComponent implements OnInit, OnChanges {
   }
 
   private updateComponentSpec() {
-    this.columns = this.componentSpec.tableSpec.columnsSpec.map(elem => elem.id);
+    this.columns = this.componentSpec.tableSpec.columnsSpec.map((elem: { id: any; }) => elem.id);
     this.datasource = this.componentSpec.tableSpec.datasource ? this.componentSpec.tableSpec.datasource : [];
-    this.columns.push('actions');
+    this.columns?.push('actions');
   }
 
   public newElement() {
     this.openDialog()
   }
 
-  public editElement(element: any, idx: number = undefined) {
-    if(idx === undefined) idx = this.datasource.findIndex(elem=>elem.isEqualTo(element))
-    if(idx>=0) this.openDialog(element, idx)
+  public editElement(element: any, idx: number|undefined = undefined) {
+    if(idx === undefined) idx = this.datasource?.findIndex(elem=>elem.isEqualTo(element))
+    if(idx !== undefined && idx>=0) this.openDialog(element, idx)
   }
 
   private deleteElement(element: any, idx: number) {
-    this.datasource.splice(idx, 1);
+    this.datasource?.splice(idx, 1);
     this.table.renderRows();
-    this.listChangeEmitter.emit(this.datasource);
+    this.listChangeEmitter?.emit(this.datasource);
   }
 
-  private openDialog(element: any = null, idx: number = null): void {
+  private openDialog(element: any = null, idx?: number): void {
 
     const dialogRef = this.dialog.open(this.componentSpec.newComponentClass, {
       width: this.componentSpec.newComponentDialogWidth,
       data: { 
         element: element, 
         parentData: this.componentSpec.parentData, 
-        index: idx !== null? idx : this.datasource.length,
-        new: idx == null,
+        index: idx !== undefined? idx : this.datasource?.length,
+        new: idx === undefined,
         readOnly: !this.allowEdition
       }
     });
@@ -70,11 +71,14 @@ export class BasicListEditorComponent implements OnInit, OnChanges {
       if(event && event.element) {
 
         if(idx==null) //new
-          this.datasource.push(event.element);
-        else //update
-          this.datasource[idx] = event.element;
+          this.datasource?.push(event.element);
+        else { //update
+          if(this.datasource) {
+            this.datasource[idx] = event.element;
+          }
+        }
 
-        this.listChangeEmitter.emit(this.datasource);
+        this.listChangeEmitter?.emit(this.datasource);
         if(this.table) {
           this.table.renderRows();
         } else {
