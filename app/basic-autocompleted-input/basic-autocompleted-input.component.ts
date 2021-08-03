@@ -48,7 +48,8 @@ export class BasicAutocompletedInputComponent implements OnInit, OnChanges, Afte
   @Input() allowEditing: boolean = false;
   @Input() contextData: any = {};
   @Input() tabIndex: number | boolean = 0;
-  @Input() entityName!: string
+  @Input() entityName!: string;
+  @Input() disabled: boolean = false;
 
   @Output() afterViewInitEmitter: EventEmitter<any> = new EventEmitter<any>();
 

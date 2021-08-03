@@ -47,7 +47,7 @@ export class BasicListEditorComponent implements OnInit, OnChanges {
     if(idx !== undefined && idx>=0) this.openDialog(element, idx)
   }
 
-  private deleteElement(element: any, idx: number) {
+  deleteElement(element: any, idx: number) {
     this.datasource?.splice(idx, 1);
     this.table.renderRows();
     this.listChangeEmitter?.emit(this.datasource);

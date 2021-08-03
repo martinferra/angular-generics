@@ -15,7 +15,7 @@
             <mat-icon mat-list-icon>add</mat-icon>
         </button>
     </div>
-    <ng-container *ngIf="datasource.length">
+    <ng-container *ngIf="datasource?.length">
         <mat-divider></mat-divider>
         <mat-table #table [dataSource]="datasource">
 

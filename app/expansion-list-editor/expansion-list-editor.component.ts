@@ -43,7 +43,7 @@ export class ExpansionListEditorComponent implements OnInit, ExpandableListCompo
   private editorComponents: Array<ExpandableComponent> = [];
   private _auxArray: Array<any> = [];
   private datasourceIndexes!: Array<number>;
-  private showEntitySubtypes: boolean = false;
+  showEntitySubtypes: boolean = false;
   private _firstEditorIsEmpty: boolean = false;
     
   constructor(
@@ -52,7 +52,7 @@ export class ExpansionListEditorComponent implements OnInit, ExpandableListCompo
     private componentResolverService: ComponentResolverService
   ) { }
 
-  private get entityHasSubtypes(): boolean {
+  get entityHasSubtypes(): boolean {
     return !!this.componentSpec.entityClass.childClasses
   }
 
@@ -60,7 +60,7 @@ export class ExpansionListEditorComponent implements OnInit, ExpandableListCompo
   contenedores para los componentes de edición. Solo se crea un nuevo array cuando cambia el  
   tamaño del datasource. Se lo utiliza en lugar del datasource ya que al modificar
   un elemento del datasource no debe regenerarse la lista de contenedores en el html */
-  private get auxArray(): Array<any> {
+  get auxArray(): Array<any> {
     if(this._auxArray.length !== this.datasource.length)
       this._auxArray = Array(this.datasource.length)
     return this._auxArray
@@ -198,7 +198,7 @@ export class ExpansionListEditorComponent implements OnInit, ExpandableListCompo
     return this.allowsSingleMode && !this.entityHasSubtypes && this.datasource.length < 2
   }
 
-  private newElement(entityClass: any) {
+  newElement(entityClass: any) {
     let newObj = new entityClass();
     this.datasource.push(newObj);
 
@@ -208,7 +208,7 @@ export class ExpansionListEditorComponent implements OnInit, ExpandableListCompo
     }
   }
 
-  private deleteElement(idx: number) {
+  deleteElement(idx: number) {
 
     let element = this.datasource[idx]
 
@@ -245,11 +245,11 @@ export class ExpansionListEditorComponent implements OnInit, ExpandableListCompo
     }
   }
 
-  private onPanelOpened(idx: number) {
+  onPanelOpened(idx: number) {
     this.toggleEditing(true)
   }
 
-  private onPanelClosed(idx: number) {
+  onPanelClosed(idx: number) {
     let editorComponent: ExpandableComponent = this.editorComponents[idx]
     this.changeDetectorRef.detectChanges();
     this.toggleEditing(false)
@@ -257,7 +257,7 @@ export class ExpansionListEditorComponent implements OnInit, ExpandableListCompo
     this.onChangedElement(editorComponent, idx);
   }
 
-  private editorHasErrors(idx: number): boolean {
+  editorHasErrors(idx: number): boolean {
 
     let ret = (
       this.editorComponents && 
@@ -270,11 +270,11 @@ export class ExpansionListEditorComponent implements OnInit, ExpandableListCompo
     return ret;
   }
 
-  private getElementTitle(idx: number): string {
+  getElementTitle(idx: number): string {
     return this.componentSpec.getElementTitle(this.datasource[idx])
   }
 
-  private getElementDescription(idx: number): string {
+  getElementDescription(idx: number): string {
     return this.componentSpec.getElementDescription(this.datasource[idx])
   }
 
