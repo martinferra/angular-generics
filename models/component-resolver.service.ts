@@ -28,9 +28,9 @@ export class ComponentResolver {
     this.relationshipsMap[classObj['classId']+'_'+operation] = compName
   }
 
-  public setComponent(componentClass: Function, key: string) {
-    if(!key) key = componentClass['classId']
-    this.componentsMap[key] = componentClass
+  public setComponent(componentClass: Function, key?: string) {
+    this.componentsMap[key || componentClass['classId']] = componentClass;
+
   }
 
   public getComponentClass(classObj: Function, operation: string) {

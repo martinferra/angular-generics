@@ -1,5 +1,5 @@
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, Observer } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { plainToClass, classToPlain } from 'class-transformer';
 
@@ -12,7 +12,7 @@ export abstract class DataService {
 
   private managedClasses: Map<string, any> = new Map()
 
-  private initializeMainEntityClass(mainEntityClass) {
+  private initializeMainEntityClass(mainEntityClass: any) {
 
     let dataServiceName = 'entityService';
 
@@ -46,7 +46,7 @@ export abstract class DataService {
       return this._id ? false : true;
     };
 
-    entityClass.prototype.isEqualTo = function(obj): boolean {
+    entityClass.prototype.isEqualTo = function(obj: any): boolean {
       return obj && (this === obj || this._id && obj._id && this._id === obj._id);
     };
   }
@@ -113,7 +113,7 @@ export abstract class DataService {
   }
 
   private childClass(plainObject: any): any {
-    return this.mainEntityClass.childClasses.find(cc => cc.classId === plainObject.__t)
+    return this.mainEntityClass.childClasses.find((cc: any) => cc.classId === plainObject.__t)
   }
 
   public getClassByName(className: string): any {
@@ -164,7 +164,7 @@ export abstract class DataService {
   }
 
   public remove(query: any = {}, method: string = 'remove') : any {
-    return Observable.create( observer => {
+    return Observable.create( (observer: Observer<any>) => {
       this.http.post(this.getUri(method), query).subscribe( data => {
         observer.next(data);
         observer.complete();
@@ -172,13 +172,13 @@ export abstract class DataService {
     })
   }
 
-  public removeById(id) : any {
+  public removeById(id: string) : any {
     return this.remove({ id }, 'removeById')
   }
 
   public count(query: any = {}) : Observable<number> {
     return this.http.post(this.getUri('count'), query).pipe(
-      map((value: number) => value)
+      map((value: any) => Number.parseInt(value))
     )
   }
 

@@ -97,12 +97,12 @@ export class ControlValidatorEntry {
 
 export class ControlValidator {
 
-    public formControlName: string
+    public formControlName: string|undefined
     protected control: AbstractControl
     protected syncEntries: Array<ControlValidatorEntry> = []
     protected asyncEntries: Array<ControlValidatorEntry> = []
 
-    constructor(formControlName: string, control: AbstractControl) {
+    constructor(formControlName: string|undefined, control: AbstractControl) {
         this.formControlName = formControlName
         this.control = control
     }
@@ -179,11 +179,13 @@ export class FormValidator extends ControlValidator {
 
         Object.keys((this.control as FormGroup).controls).forEach( key => {
             const ctrl = this.control.get(key);
-            this.controlValidators.push(createValidator(key, ctrl))
+            if(ctrl) {
+                this.controlValidators.push(createValidator(key, ctrl))
+            }
         });
     }
 
-    public get(controlKey: string): ControlValidator {
+    public get(controlKey: string): ControlValidator|undefined {
         return this.controlValidators.find( (cv: ControlValidator) => cv.formControlName === controlKey)
     }
 }
