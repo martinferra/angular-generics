@@ -1,4 +1,5 @@
 import { ValidatorFn, AbstractControl, FormGroup, AsyncValidatorFn, FormControl } from "@angular/forms";
+import { boolean } from "joi";
 
 function createValidator(name: string, control: AbstractControl): ControlValidator {
     if(control instanceof FormGroup) {
@@ -183,6 +184,12 @@ export class FormValidator extends ControlValidator {
                 this.controlValidators.push(createValidator(key, ctrl))
             }
         });
+    }
+
+    public hasErrors(): boolean {
+        return this.controlValidators.reduce((_hasErrors: boolean, controlValidator: ControlValidator) => { 
+            return _hasErrors || controlValidator.hasErrors();
+        }, false);
     }
 
     public get(controlKey: string): ControlValidator|undefined {
