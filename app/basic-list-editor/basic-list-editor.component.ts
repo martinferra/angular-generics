@@ -55,8 +55,7 @@ export class BasicListEditorComponent implements OnInit, OnChanges {
 
   private openDialog(element: any = null, idx?: number): void {
 
-    const dialogRef = this.dialog.open(this.componentSpec.newComponentClass, {
-      width: this.componentSpec.newComponentDialogWidth,
+    let dialogSpec: any = {
       data: { 
         element: element, 
         parentData: this.componentSpec.parentData, 
@@ -64,7 +63,23 @@ export class BasicListEditorComponent implements OnInit, OnChanges {
         new: idx === undefined,
         readOnly: !this.allowEdition
       }
-    });
+    };
+
+    if(this.componentSpec.newComponentDialogFitScreenSize) {
+      Object.assign(dialogSpec, {
+        position: {
+          top: '56px'
+        },
+        disableClose: true,
+        panelClass: ['full-screen-modal']
+      });
+    } else {
+      Object.assign(dialogSpec, {
+        width: this.componentSpec.newComponentDialogWidth,
+      });
+    };
+
+    const dialogRef = this.dialog.open(this.componentSpec.newComponentClass, dialogSpec);
 
     dialogRef.afterClosed().subscribe( (event: any) => {
 
