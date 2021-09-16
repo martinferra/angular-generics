@@ -8,7 +8,7 @@
 
     <div class="header">
 
-        <h3>{{componentSpec.headerSpec.title}}</h3>
+        <h3 *ngIf="componentSpec?.headerSpec?.title">{{componentSpec.headerSpec.title}}</h3>
 
         <div *ngIf="showAddButton" class="addCtrGroup">
             <ng-container *ngIf="entityHasSubtypes; else noSubtypes">
