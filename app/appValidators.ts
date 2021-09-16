@@ -1,9 +1,10 @@
-import { ValidatorFn, AbstractControl, FormGroup, AsyncValidatorFn, FormControl } from "@angular/forms";
-import { boolean } from "joi";
+import { ValidatorFn, AbstractControl, FormGroup, AsyncValidatorFn, FormControl, FormArray } from "@angular/forms";
 
-function createValidator(name: string, control: AbstractControl): ControlValidator {
+export function createValidator(name: string, control: AbstractControl): ControlValidator {
     if(control instanceof FormGroup) {
         return new FormValidator(control as FormGroup, name);
+    } else if(control instanceof FormArray) {
+        return new ArrayValidator(control as FormArray, name);
     } else {
         return new ControlValidator(name, control as FormControl);
     }
@@ -99,7 +100,7 @@ export class ControlValidatorEntry {
 export class ControlValidator {
 
     public formControlName: string|undefined
-    protected control: AbstractControl
+    public control: AbstractControl
     protected syncEntries: Array<ControlValidatorEntry> = []
     protected asyncEntries: Array<ControlValidatorEntry> = []
 
@@ -174,7 +175,7 @@ export class FormValidator extends ControlValidator {
 
     controlValidators: Array<ControlValidator> = []
 
-    constructor(form: FormGroup, formControlName?: string) {
+    constructor(form: AbstractControl, formControlName?: string) {
 
         super(formControlName, form);
 
@@ -194,5 +195,16 @@ export class FormValidator extends ControlValidator {
 
     public get(controlKey: string): ControlValidator|undefined {
         return this.controlValidators.find( (cv: ControlValidator) => cv.formControlName === controlKey)
+    }
+}
+
+export class ArrayValidator extends FormValidator {
+
+    constructor(array: AbstractControl, formControlName?: string) {
+        super(array, formControlName);
+    }
+
+    public at(index: number): ControlValidator|undefined {
+        return this.controlValidators[index];
     }
 }
