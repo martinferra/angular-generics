@@ -1,4 +1,3 @@
-import { ComponentType } from '@angular/cdk/portal';
 import { Component, Input, OnInit, ViewChild, SimpleChanges, OnChanges, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatTable } from '@angular/material/table';
@@ -20,7 +19,7 @@ export class BasicListEditorComponent implements OnInit, OnChanges {
 
   constructor(
     private changeDetectorRef: ChangeDetectorRef,
-    public dialog: MatDialog,
+    public dialog: MatDialog
   ) {
   }
 
@@ -62,14 +61,11 @@ export class BasicListEditorComponent implements OnInit, OnChanges {
         index: idx !== undefined? idx : this.datasource?.length,
         new: idx === undefined,
         readOnly: !this.allowEdition
-      }
+      },
     };
 
     if(this.componentSpec.newComponentDialogFitScreenSize) {
       Object.assign(dialogSpec, {
-        position: {
-          top: '56px'
-        },
         disableClose: true,
         panelClass: ['full-screen-modal']
       });

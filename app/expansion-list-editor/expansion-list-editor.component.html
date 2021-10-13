@@ -37,7 +37,7 @@
 
     </div>
 
-    <div *ngIf="datasource.length && showDeleteButtonValues$ | async as showDeleteButtonValues" class="accordion-container">
+    <div *ngIf="datasource.length && (showDeleteButtonValues$ | async) as showDeleteButtonValues" class="accordion-container">
         <mat-accordion>
             <mat-expansion-panel #thisPanel
                 *ngFor="let value of auxArray; let idx = index" 
@@ -65,8 +65,9 @@
                     </ng-template>
 
                     <button *ngIf="showDeleteButtonValues[idx]" mat-icon-button
+                        type="button"
                         matTooltip="Eliminar"
-                        (click)="deleteElement(idx); $event.preventDefault()">
+                        (click)="deleteElement(idx); $event.stopPropagation();">
                         <mat-icon mat-list-icon>delete</mat-icon>
                     </button>
 
