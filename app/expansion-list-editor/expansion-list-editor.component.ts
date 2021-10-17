@@ -1,4 +1,4 @@
-import { Component, Input, EventEmitter, ChangeDetectionStrategy, ViewChildren, QueryList, ComponentFactoryResolver, Output, ComponentFactory } from '@angular/core';
+import { Component, Input, EventEmitter, ChangeDetectionStrategy, ViewChildren, QueryList, ComponentFactoryResolver, Output, ComponentFactory, ChangeDetectorRef, OnChanges, SimpleChanges } from '@angular/core';
 import { MatExpansionPanel } from '@angular/material/expansion';
 import { EditorContainerDirective } from './editorContainer.directive';
 import { ComponentResolverService, operations } from '../../../generic/models/component-resolver.service';
@@ -21,7 +21,7 @@ enum ItemState {
   styleUrls: ['./expansion-list-editor.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class ExpansionListEditorComponent implements OnInit, ExpandableListComponent  {
+export class ExpansionListEditorComponent implements OnInit, OnChanges, ExpandableListComponent  {
 
   @Input() parentComponent: any;
   @Input() parentElement: any;
@@ -34,9 +34,7 @@ export class ExpansionListEditorComponent implements OnInit, ExpandableListCompo
   @Input() cardFormat: boolean = false;
 
   @Output() listChangeEmitter: EventEmitter<any[]> = new EventEmitter<any[]>();
-  @Output() changedElementEmitter: EventEmitter<any> = new EventEmitter();
   @Output() elementOperationEmitter: EventEmitter<any> = new EventEmitter();
-  @Output() elementDeletionEmitter: EventEmitter<any> = new EventEmitter();
   @Output() contextChangeEmitter: EventEmitter<any> = new EventEmitter<any>();
 
   @ViewChildren(MatExpansionPanel) 
@@ -58,6 +56,7 @@ export class ExpansionListEditorComponent implements OnInit, ExpandableListCompo
   constructor(
     private componentFactoryResolver: ComponentFactoryResolver,
     private componentResolverService: ComponentResolverService,
+    private changeDetectorRef: ChangeDetectorRef
   ) { }
 
   get entityHasSubtypes(): boolean {
@@ -74,6 +73,12 @@ export class ExpansionListEditorComponent implements OnInit, ExpandableListCompo
     return this._auxArray
   }
 
+  ngOnChanges(changes: SimpleChanges): void {
+    if(changes.datasource && !changes.datasource.firstChange) {
+      this.InitializeDatasource();
+    }
+  }
+
   ngOnInit() {
     this.setDefaultSpec();
     this.InitializeDatasource();
@@ -86,6 +91,7 @@ export class ExpansionListEditorComponent implements OnInit, ExpandableListCompo
       readOnlyEditor: ()=>false,
       cloneEachElement: true,
       allowsAddingElements: true,
+      emitElementWithErrors: true,
     }, this.componentSpec)
   }
 
@@ -110,6 +116,7 @@ export class ExpansionListEditorComponent implements OnInit, ExpandableListCompo
       .pipe(tap(() => {
         this.loadEditorsAtNextLoop(newElement);
       }));
+    this.changeDetectorRef.markForCheck();
   }
 
   private loadEditorsAtNextLoop(newElement: boolean = false) {
@@ -244,8 +251,7 @@ export class ExpansionListEditorComponent implements OnInit, ExpandableListCompo
     let element: any = this.datasource[idx];
     this.datasource.splice(idx, 1);
     this.editorComponents.splice(idx, 1);
-    this.datasourceIndexes.splice(idx, 1);
-
+    
     if(this.itemsState[idx] !== ItemState.uncommitted) {
       this.emitElementOperation(idx, element, ElementOperation.delete);
     }
@@ -278,7 +284,10 @@ export class ExpansionListEditorComponent implements OnInit, ExpandableListCompo
     this.toggleEditing(false);
     editorComponent.markAsTouched();
 
-    if(!editorComponent.hasErrors()) {
+    if(
+      !editorComponent.hasErrors() || 
+      this.componentSpec.emitElementWithErrors
+    ) {
       switch(this.itemsState[idx]) {
         case ItemState.uncommitted:
           this.emitElementOperation(idx, this.datasource[idx], ElementOperation.insert);
@@ -318,10 +327,14 @@ export class ExpansionListEditorComponent implements OnInit, ExpandableListCompo
     });
 
     this.listChangeEmitter.emit(
+      this.componentSpec.emitElementWithErrors?
+      this.datasource :
       this.datasource.filter((elem: any, _idx: number)=>!this.editorComponents[_idx].hasErrors())
     );
 
-    if(op !== ElementOperation.delete) {
+    if(op === ElementOperation.delete) {
+      this.datasourceIndexes.splice(idx, 1);
+    } else {
       this.itemsState[idx] = ItemState.committed;
     }
   }
