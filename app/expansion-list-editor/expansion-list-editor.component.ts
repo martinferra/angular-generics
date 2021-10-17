@@ -52,6 +52,7 @@ export class ExpansionListEditorComponent implements OnInit, OnChanges, Expandab
   private itemsState!: number[];
   showEntitySubtypes: boolean = false;
   private _firstEditorIsEmpty: boolean = false;
+  private openedPanelIdx: number = -1;
     
   constructor(
     private componentFactoryResolver: ComponentFactoryResolver,
@@ -134,7 +135,7 @@ export class ExpansionListEditorComponent implements OnInit, OnChanges, Expandab
     editorContainerArray.forEach( (editorContainer: EditorContainerDirective, idx) => {
       let isLast: boolean = idx === editorContainerArray.length-1;
       let markedAsTouched: boolean = !isLast;
-      let expand: boolean = newElement && isLast || this.singleMode;
+      let expand: boolean = newElement && isLast || this.singleMode || idx === this.openedPanelIdx;
       let expandAfterInit: boolean = newElement && (isLast || this.singleMode);
       editorComponent = this.loadEditor(editorContainer, idx, markedAsTouched, expand, expandAfterInit);
       this.editorComponents.push(editorComponent);
@@ -239,24 +240,37 @@ export class ExpansionListEditorComponent implements OnInit, OnChanges, Expandab
     let newObj = new entityClass();
     this.datasource.push(newObj);
     this.itemsState.push(ItemState.uncommitted);
+    this.openedPanelIdx = this.datasource.length-1;
     this.updateView(true);
   }
 
   deleteElement(idx: number) {
 
     if(this.expansionPanelList.toArray()[idx].expanded) {
-      this.toggleEditing(false);
+      this.expansionPanelList.toArray()[idx].close();
     };
     
     let element: any = this.datasource[idx];
     this.datasource.splice(idx, 1);
-    this.editorComponents.splice(idx, 1);
     
-    if(this.itemsState[idx] !== ItemState.uncommitted) {
+    if(
+      this.itemsState[idx] !== ItemState.uncommitted &&
+      !(
+        this.itemsState[idx] === ItemState.changed && 
+        this.editorComponents[idx].hasErrors()
+      )
+    ) {
       this.emitElementOperation(idx, element, ElementOperation.delete);
     }
 
+    this.editorComponents.splice(idx, 1);
     this.itemsState.splice(idx, 1);
+
+    if(this.openedPanelIdx === idx) {
+      this.openedPanelIdx = -1;
+    } else if(this.openedPanelIdx > idx) {
+      this.openedPanelIdx--;
+    }
 
     this.updateView();
   }
@@ -274,7 +288,8 @@ export class ExpansionListEditorComponent implements OnInit, OnChanges, Expandab
     último evento (cierre) se produzca en segundo lugar, realizando el cambio de 
     estado contrario */
     setTimeout(()=>{
-      this.toggleEditing(true)
+      this.toggleEditing(true);
+      this.openedPanelIdx = idx;
     })
   }
 
@@ -282,6 +297,7 @@ export class ExpansionListEditorComponent implements OnInit, OnChanges, Expandab
 
     let editorComponent: ExpandableComponent = this.editorComponents[idx];
     this.toggleEditing(false);
+    this.openedPanelIdx = -1;
     editorComponent.markAsTouched();
 
     if(
@@ -327,9 +343,13 @@ export class ExpansionListEditorComponent implements OnInit, OnChanges, Expandab
     });
 
     this.listChangeEmitter.emit(
-      this.componentSpec.emitElementWithErrors?
-      this.datasource :
-      this.datasource.filter((elem: any, _idx: number)=>!this.editorComponents[_idx].hasErrors())
+      this.datasource.filter((elem: any, _idx: number)=>
+        (
+          this.componentSpec.emitElementWithErrors || 
+          !this.editorComponents[_idx].hasErrors()
+        ) &&
+        !this.editorComponents[_idx].isEmpty
+      )
     );
 
     if(op === ElementOperation.delete) {
