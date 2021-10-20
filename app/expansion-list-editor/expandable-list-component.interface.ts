@@ -13,7 +13,6 @@ export interface ExpandableListComponent {
     editingEmitter: EventEmitter<boolean>;
     elementOperationEmitter: EventEmitter<any>;
     contextChangeEmitter?: EventEmitter<any>;
-    updateView(expandLast: boolean): void;
     hasErrors(): boolean;
     updateContext?(contextdata: any): void
 }

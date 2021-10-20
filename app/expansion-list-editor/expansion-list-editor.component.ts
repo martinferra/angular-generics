@@ -52,7 +52,6 @@ export class ExpansionListEditorComponent implements OnInit, OnChanges, Expandab
   private itemsState!: number[];
   showEntitySubtypes: boolean = false;
   private _firstEditorIsEmpty: boolean = false;
-  private openedPanelIdx: number = -1;
     
   constructor(
     private componentFactoryResolver: ComponentFactoryResolver,
@@ -108,36 +107,49 @@ export class ExpansionListEditorComponent implements OnInit, OnChanges, Expandab
       this._firstEditorIsEmpty = true
       this.newElement(this.componentSpec.entityClass)
     } else {
-      this.updateView();
+      this.updateView(-1, true);
     }
   }
 
-  updateView(newElement: boolean = false) {
-    this.showDeleteButtonValues$ = forkJoin(this.datasource.map((elem: any) => this.componentSpec.showDeleteButton(elem)))
-      .pipe(tap(() => {
-        this.loadEditorsAtNextLoop(newElement);
-      }));
+  updateView(expandIdx: number = -1, expandAfterInit: boolean = false) {
+    this.showDeleteButtonValues$ = forkJoin(this.datasource.map(
+      (elem: any) => this.componentSpec.showDeleteButton(elem)
+    )).pipe(tap(() => {
+      setTimeout(()=>{
+        const panelToExpandIdx: number = expandIdx>=0? expandIdx : this.singleMode? 0 : -1;
+        this.closeExpandedPanel();
+        this.loadEditors();
+        if(panelToExpandIdx>=0) {
+          this.expandPanel(panelToExpandIdx, expandAfterInit);
+        };
+      });
+    }));
     this.changeDetectorRef.markForCheck();
   }
 
-  private loadEditorsAtNextLoop(newElement: boolean = false) {
-    setTimeout(()=>{ 
-      this.loadEditors(newElement);
-    });
+  private expandPanel(expandIdx: number, expandAfterInit: boolean = false) {
+    if(expandAfterInit) {
+      let subscription: Subscription = this.editorComponents[expandIdx]
+        .afterViewInitEmitter
+        .subscribe(()=>{
+          subscription.unsubscribe();
+          setTimeout(()=>this.expansionPanelList.toArray()[expandIdx].open());
+        });
+    } else {
+      this.expansionPanelList.toArray()[expandIdx].open();
+    }
   }
 
-  private loadEditors(newElement: boolean = false) {
+  private loadEditors() {
 
     this.editorComponents = [];
-    let editorComponent;
+    let editorComponent: ExpandableComponent;
     let editorContainerArray: any[] = this.editorContainerList.toArray();
+    let lastId = editorContainerArray.length-1;
 
     editorContainerArray.forEach( (editorContainer: EditorContainerDirective, idx) => {
-      let isLast: boolean = idx === editorContainerArray.length-1;
-      let markedAsTouched: boolean = !isLast;
-      let expand: boolean = newElement && isLast || this.singleMode || idx === this.openedPanelIdx;
-      let expandAfterInit: boolean = newElement && (isLast || this.singleMode);
-      editorComponent = this.loadEditor(editorContainer, idx, markedAsTouched, expand, expandAfterInit);
+      let markedAsTouched: boolean = idx !== lastId;
+      editorComponent = this.loadEditor(editorContainer, idx, markedAsTouched);
       this.editorComponents.push(editorComponent);
     });
     
@@ -147,8 +159,6 @@ export class ExpansionListEditorComponent implements OnInit, OnChanges, Expandab
     editorContainer: EditorContainerDirective, 
     idx: number, 
     markedAsTouched: boolean = false, 
-    expand: boolean = false,
-    expandAfterInit: boolean = false
     ): ExpandableComponent {
 
     const element = this.datasource[idx];
@@ -175,15 +185,6 @@ export class ExpansionListEditorComponent implements OnInit, OnChanges, Expandab
     subscriptions.add(editorComponent.changedElementEmitter.subscribe(()=>this.onChangedElement(editorComponent, idx)))
     subscriptions.add(editorComponent.closeEditorEmitter.subscribe(()=>this.closePanel(idx)))
     subscriptions.add(editorComponent.contextChangeEmitter.subscribe(contextValue=>this.updateContextFromEditor(idx, contextValue)))
-    if(expand) {
-      if(expandAfterInit) {
-        subscriptions.add(editorComponent.afterViewInitEmitter.subscribe(()=>
-          setTimeout(()=>this.expansionPanelList.toArray()[idx].open())
-        ));
-      } else {
-        this.expansionPanelList.toArray()[idx].open();
-      }
-    }
 
     componentRef.onDestroy(()=>subscriptions.unsubscribe())
 
@@ -204,8 +205,21 @@ export class ExpansionListEditorComponent implements OnInit, OnChanges, Expandab
   }
 
   private closePanel(idx: number) {
-    this.expansionPanelList.toArray()[idx].close()
-    this.toggleEditing(false)
+    this.expansionPanelList.toArray()[idx].close();
+  }
+
+  private getExpandedPanelIdx(): number {
+    return this.expansionPanelList? this.expansionPanelList.toArray().findIndex(
+      (expansionPanel: MatExpansionPanel)=>expansionPanel.expanded
+    ) : -1;
+  }
+
+  private closeExpandedPanel(): number {
+    const idx = this.getExpandedPanelIdx();
+    if(idx>=0) {
+      this.closePanel(idx);
+    };
+    return idx;
   }
 
   get firstEditorIsEmpty(): boolean {
@@ -237,20 +251,21 @@ export class ExpansionListEditorComponent implements OnInit, OnChanges, Expandab
   }
 
   newElement(entityClass: any) {
+    this.closeExpandedPanel();
     let newObj = new entityClass();
     this.datasource.push(newObj);
     this.itemsState.push(ItemState.uncommitted);
-    this.openedPanelIdx = this.datasource.length-1;
-    this.updateView(true);
+    this.updateView(this.datasource.length-1, true);
   }
 
   deleteElement(idx: number) {
+ 
+    const element: any = this.datasource[idx];
+    const currentExpandedPanelIdx: number = this.getExpandedPanelIdx();
+    const panelToExpandIdx: number = idx === currentExpandedPanelIdx? -1 :
+      idx < currentExpandedPanelIdx? currentExpandedPanelIdx - 1 :
+      currentExpandedPanelIdx;
 
-    if(this.expansionPanelList.toArray()[idx].expanded) {
-      this.expansionPanelList.toArray()[idx].close();
-    };
-    
-    let element: any = this.datasource[idx];
     this.datasource.splice(idx, 1);
     
     if(
@@ -266,13 +281,8 @@ export class ExpansionListEditorComponent implements OnInit, OnChanges, Expandab
     this.editorComponents.splice(idx, 1);
     this.itemsState.splice(idx, 1);
 
-    if(this.openedPanelIdx === idx) {
-      this.openedPanelIdx = -1;
-    } else if(this.openedPanelIdx > idx) {
-      this.openedPanelIdx--;
-    }
 
-    this.updateView();
+    this.updateView(panelToExpandIdx, false);
   }
 
   private toggleEditing(editing: boolean) {
@@ -289,7 +299,6 @@ export class ExpansionListEditorComponent implements OnInit, OnChanges, Expandab
     estado contrario */
     setTimeout(()=>{
       this.toggleEditing(true);
-      this.openedPanelIdx = idx;
     })
   }
 
@@ -297,7 +306,6 @@ export class ExpansionListEditorComponent implements OnInit, OnChanges, Expandab
 
     let editorComponent: ExpandableComponent = this.editorComponents[idx];
     this.toggleEditing(false);
-    this.openedPanelIdx = -1;
     editorComponent.markAsTouched();
 
     if(
