@@ -12,6 +12,7 @@ export function createValidator(name: string, control: AbstractControl): Control
 
 export const AppRegExp = {
     onlyNumbers: /^\d*$/,
+    decimalNumbers: /^([0-9]+\.?[0-9]*|\.[0-9]+)$/,
     onlyLetters: /^([A-Za-z\u00C0-\u00D6\u00D8-\u00f6\u00f8-\u00ff\s]*)$/,
     onlyAlphaNumerics: /^([A-Za-z\u00C0-\u00D6\u00D8-\u00f6\u00f8-\u00ff\s\d]*)$/,
     onlyAlphaNumericsOrPunctuation: /^([A-Za-z\u00C0-\u00D6\u00D8-\u00f6\u00f8-\u00ff\s\d\.]*)$/,

@@ -4,8 +4,8 @@
         *ngFor="let item of datasource; let idx = index"
         (click)="onCardClick(item, idx)"
         class="checkCard unselectable"
-        [ngClass]="isChecked(item)? 'checkCard-checked' : 'checkCard-unchecked'">
-        <span class="number">{{getLabel(item)}}</span>
-        <mat-icon *ngIf="isChecked(item)" mat-list-icon>done</mat-icon>
+        [ngClass]="isChecked(item, idx)? 'checkCard-checked' : 'checkCard-unchecked'">
+        <span class="number">{{getLabel(item, idx)}}</span>
+        <mat-icon *ngIf="isChecked(item, idx)" mat-list-icon>done</mat-icon>
     </div>
 </div>

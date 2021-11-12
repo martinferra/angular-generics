@@ -32,6 +32,7 @@ export class ExpansionListEditorComponent implements OnInit, OnChanges, Expandab
   @Input() editingEmitter!: EventEmitter<boolean>;
   @Input() allowsSingleMode: boolean = false;
   @Input() cardFormat: boolean = false;
+  @Input() allowsAddingElements: boolean = true;
 
   @Output() listChangeEmitter: EventEmitter<any[]> = new EventEmitter<any[]>();
   @Output() elementOperationEmitter: EventEmitter<any> = new EventEmitter();
@@ -86,12 +87,11 @@ export class ExpansionListEditorComponent implements OnInit, OnChanges, Expandab
 
   private setDefaultSpec() {
     this.componentSpec = Object.assign({
-      showAddButton: true,
       showDeleteButton: ()=>of(true),
       readOnlyEditor: ()=>false,
       cloneEachElement: true,
-      allowsAddingElements: true,
       emitElementWithErrors: true,
+      errorMessage: 'Revisar errores'
     }, this.componentSpec)
   }
 
@@ -100,7 +100,7 @@ export class ExpansionListEditorComponent implements OnInit, OnChanges, Expandab
     this.itemsState = this.datasource.map(()=>ItemState.committed);
     if(
       this.allowsSingleMode &&
-      this.componentSpec.allowsAddingElements && 
+      this.allowsAddingElements && 
       !this.entityHasSubtypes && 
       this.datasource.length === 0
     ) {
@@ -118,7 +118,7 @@ export class ExpansionListEditorComponent implements OnInit, OnChanges, Expandab
       setTimeout(()=>{
         const panelToExpandIdx: number = expandIdx>=0? expandIdx : this.singleMode? 0 : -1;
         this.closeExpandedPanel();
-        this.loadEditors();
+        this.loadEditors(!(panelToExpandIdx>=0));
         if(panelToExpandIdx>=0) {
           this.expandPanel(panelToExpandIdx, expandAfterInit);
         };
@@ -140,7 +140,7 @@ export class ExpansionListEditorComponent implements OnInit, OnChanges, Expandab
     }
   }
 
-  private loadEditors() {
+  private loadEditors(markLastAsTouched: boolean) {
 
     this.editorComponents = [];
     let editorComponent: ExpandableComponent;
@@ -148,7 +148,7 @@ export class ExpansionListEditorComponent implements OnInit, OnChanges, Expandab
     let lastId = editorContainerArray.length-1;
 
     editorContainerArray.forEach( (editorContainer: EditorContainerDirective, idx) => {
-      let markedAsTouched: boolean = idx !== lastId;
+      let markedAsTouched: boolean = markLastAsTouched || idx !== lastId;
       editorComponent = this.loadEditor(editorContainer, idx, markedAsTouched);
       this.editorComponents.push(editorComponent);
     });
@@ -243,7 +243,7 @@ export class ExpansionListEditorComponent implements OnInit, OnChanges, Expandab
   }
 
   public get showAddButton(): boolean {
-    return this.componentSpec.allowsAddingElements && !(this.singleMode && this.firstEditorIsEmpty)
+    return this.allowsAddingElements && !this.editing && !(this.singleMode && this.firstEditorIsEmpty)
   }
 
   public get singleMode(): boolean {
@@ -359,6 +359,8 @@ export class ExpansionListEditorComponent implements OnInit, OnChanges, Expandab
         !this.editorComponents[_idx].isEmpty
       )
     );
+
+    this.changeDetectorRef.markForCheck();
 
     if(op === ElementOperation.delete) {
       this.datasourceIndexes.splice(idx, 1);

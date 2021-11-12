@@ -9,9 +9,9 @@ export class CheckCardsGroupComponent implements OnInit {
 
   @Input() datasource!: any[];
   @Input() title!: string;
-  @Input() isChecked!: (item:any)=>boolean;
-  @Input() toggleCheckState!: (item:any)=>void;
-  @Input() getLabel!: (item:any)=>string;
+  @Input() isChecked!: (item:any, idx:number)=>boolean;
+  @Input() toggleCheckState!: (item:any, idx:number)=>void;
+  @Input() getLabel!: (item:any, idx:number)=>string;
   @Input() maxChecked: number = 0;
   @Input() msgForMaxReached: string = "";
 
@@ -23,22 +23,22 @@ export class CheckCardsGroupComponent implements OnInit {
   }
 
   onCardClick(item: any, idx: number): void {
-    if(!this.maxChecked || this.isChecked(this.datasource[idx])) {
-      this._toggleCheckState(item);
+    if(!this.maxChecked || this.isChecked(this.datasource[idx], idx)) {
+      this._toggleCheckState(item, idx);
     } else {
-      let checkedNumber = this.datasource.reduce((acc: number, curr: any) => { 
-        return (acc += this.isChecked(curr)? 1 : 0) 
+      let checkedNumber = this.datasource.reduce((acc: number, curr: any, _idx: number) => { 
+        return (acc += this.isChecked(curr, _idx)? 1 : 0) 
       }, 0);
       if(checkedNumber<this.maxChecked) {
-        this._toggleCheckState(item);
+        this._toggleCheckState(item, idx);
       } else if(this.msgForMaxReached) {
         alert(this.msgForMaxReached);
       }
     }
   }
 
-  private _toggleCheckState(item: any): void {
-    this.toggleCheckState(item);
+  private _toggleCheckState(item: any, idx: number): void {
+    this.toggleCheckState(item, idx);
     this.listChangeEmitter.emit();
   }
 }

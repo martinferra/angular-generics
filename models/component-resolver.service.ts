@@ -25,25 +25,25 @@ export class ComponentResolver {
   }
 
   public setRelationship(classObj: Function, operation: string, compName: string) {
-    this.relationshipsMap[classObj['classId']+'_'+operation] = compName
+    this.relationshipsMap.set(classObj['classId']+'_'+operation, compName);
   }
 
   public setComponent(componentClass: Function, key?: string) {
-    this.componentsMap[key || componentClass['classId']] = componentClass;
+    this.componentsMap.set(key || componentClass['classId'], componentClass);
 
   }
 
   public getComponentClass(classObj: Function, operation: string) {
-    return this.componentsMap[this.relationshipsMap[classObj['classId']+'_'+operation]]
+    return this.componentsMap.get(this.relationshipsMap.get(classObj['classId']+'_'+operation)||'');
   }
 }
 
 @Injectable()
 export class ComponentResolverService {
 
-  private componentResolver: ComponentResolver = ComponentResolver.getInstance()
+  private componentResolver: ComponentResolver = ComponentResolver.getInstance();
 
-  public getComponentClass(classObj: Function, operation: string) {
+  public getComponentClass(classObj: Function, operation: string): any {
     return this.componentResolver.getComponentClass(classObj, operation)
   }
 }

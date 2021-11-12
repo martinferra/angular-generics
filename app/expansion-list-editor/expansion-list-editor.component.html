@@ -54,7 +54,9 @@
                             {{ getElementTitle(idx) }}
                         </mat-panel-title>
                         <mat-panel-description [ngClass]="{ 'withIcon': showDeleteButtonValues[idx] }">
-                            <ng-container *ngIf="editorHasErrors(idx); else description"><span>Revisar errores</span></ng-container>
+                            <ng-container *ngIf="editorHasErrors(idx); else description">
+                                <span>{{componentSpec.errorMessage}}</span>
+                            </ng-container>
                             <ng-template #description>{{ getElementDescription(idx) }}</ng-template>
                         </mat-panel-description>
                     </ng-container>
