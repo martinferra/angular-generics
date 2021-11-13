@@ -243,7 +243,12 @@ export class ExpansionListEditorComponent implements OnInit, OnChanges, Expandab
   }
 
   public get showAddButton(): boolean {
-    return this.allowsAddingElements && !this.editing && !(this.singleMode && this.firstEditorIsEmpty)
+    return this.allowsAddingElements && 
+      !(
+        this.singleMode? 
+          this.firstEditorIsEmpty : 
+          this.editing && this.datasource.length > 0
+      )
   }
 
   public get singleMode(): boolean {
