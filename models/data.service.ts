@@ -163,6 +163,15 @@ export abstract class DataService {
     )
   }
 
+  public updateMany(query: any, data: any) : Observable<any> {
+    return this.http.post(
+      this.getUri('updateMany'), {
+        query: query,
+        data: this.translateToServerData(classToPlain(data))
+      }
+    )
+  }
+
   public remove(query: any = {}, method: string = 'remove') : any {
     return Observable.create( (observer: Observer<any>) => {
       this.http.post(this.getUri(method), query).subscribe( data => {
@@ -182,8 +191,11 @@ export abstract class DataService {
     )
   }
 
-  public custom(customFnName: string, params: any) : Observable<any> {
-    return this.http.post(this.getUri('custom'), { customFnName, params })
-      .pipe(map(plainObject => this.convertToClassInstance(plainObject)))
+  public custom(customFnName: string, params: any, convertToClassInstance?: boolean) : Observable<any> {
+    let ret =  this.http.post(this.getUri(customFnName), params);
+    if(convertToClassInstance) {
+      ret = ret.pipe(map(plainObject => this.convertToClassInstance(plainObject)))
+    };
+    return ret;
   }
 }
