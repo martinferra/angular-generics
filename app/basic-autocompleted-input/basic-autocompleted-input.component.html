@@ -1,34 +1,76 @@
-<mat-form-field [ngClass]="inputCssClass">
-    <mat-label *ngIf="label">{{ label }}</mat-label>
+<!-- Se creó este elemento para emular el comportamiento del label del mat-form-field,
+pero corrigiendo el hecho de que este último se alínea horizontalmente con el input 
+cuando hay un elemento con la directiva "matPrefix" en lugar de quedar alineado a la 
+izquierda como se esperaría (ver la clase CSS asociada "pseudo-label") -->
+<div class="pseudo-label" *ngIf="(label || placeholder) && !noElementSelected">{{ label || placeholder }}</div>
+<mat-form-field [ngClass]="inputCssClass" class="innerClass">
+
+    <mat-label *ngIf="label && noElementSelected">{{ label }}</mat-label>
+
+    <div
+        class="selectedElementContainer"
+        [ngClass]="{clickable:!disabled,unclickable:disabled}"
+        matPrefix 
+        *ngIf="!noElementSelected">
+        <div 
+            class="selectedElementDesc unselectable"
+            [ngClass]="{selectedElementDescShort:editing}"
+            (click)="editSelectedElement(); $event.preventDefault()"
+            [matTooltip]="selectedElementDescription">
+            {{selectedElementShortenedDescription}}
+        </div>
+        <button
+            type="button"
+            *ngIf="!noElementSelected && !disabled" 
+            mat-icon-button
+            [disabled]="disabled"
+            tabindex="-1"
+            (mousedown)="$event.preventDefault()"
+            (click)="setNoElementSelected(); $event.preventDefault()">
+                <mat-icon mat-list-icon>clear</mat-icon>
+        </button>
+    </div>
+
+    <!-- En lugar de *ngIf, se usa hidden como etrategia para ocultar o mostrar 
+    el input ya que en el primer caso, el componente se quita y se vuelve a 
+    agregar en el DOM con cada cambio de estado, lo cual genera un error de 
+    Angular Material, ya que <mat-form-field> debe contener siempre un elemento 
+    de form -->
     <input matInput #input
+        [hidden]="elementSelected" 
         type="text"
         [formControl]="elementCtrl"
-        [required]="required"
-        [placeholder]="placeholder"
+        [placeholder]="noElementSelected? placeholder : ''"
         [matAutocomplete]="auto"
-        [tabindex]="_tabIndex">
+        [tabindex]="_tabIndex"
+        (focusout)="onInputFocusOut()"
+        (keydown.esc)="onInputFocusOut()">
+
     <button
         type="button"
-        *ngIf="showEditButton" 
+        *ngIf="elementSelected && !disabled" 
         matSuffix mat-icon-button
-        [disabled]="disabled"
         tabindex="-1"
-        (click)="editSelectedElement(); $event.preventDefault()">
-            <mat-icon mat-list-icon>mode_edit</mat-icon>
+        (click)="setEditing(); $event.preventDefault()">
+            <mat-icon mat-list-icon class="search-icon">search</mat-icon>
     </button>
+
     <mat-hint *ngIf="hint">{{ hint }}</mat-hint>
-    <mat-error *ngIf="elementCtrl.hasError('noSelectedElement')">
+    <mat-error *ngIf="elementCtrl.hasError('noElementSelected')">
         {{ requiredErrorMessage }}
     </mat-error>
 </mat-form-field>              
 <mat-autocomplete
     #auto="matAutocomplete"
     autoActiveFirstOption
-    [displayWith]="_displayInnerElementInInputFn"
+    [displayWith]="shortenedDescriptionFn"
     [panelWidth]="panelWidth">
     <mat-option 
         *ngFor="let innerFilteredElement of filteredElements$ | async" 
         [value]="innerFilteredElement">
-        <div *appStaticHtml="displayElementInList(innerFilteredElement)"></div>
+        <div 
+            *appStaticHtml="displayElementInList(innerFilteredElement)"     
+            (mousedown)="$event.preventDefault()">
+        </div>
     </mat-option>
 </mat-autocomplete>

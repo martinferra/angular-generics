@@ -1,4 +1,4 @@
-import { Component, Input, Output, OnInit, EventEmitter, SimpleChanges, OnChanges, ViewChild, ElementRef, AfterViewInit, forwardRef } from '@angular/core';
+import { Component, Input, Output, OnInit, EventEmitter, ViewChild, ElementRef, AfterViewInit, forwardRef } from '@angular/core';
 import { ControlValueAccessor, FormControl, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 
@@ -8,19 +8,24 @@ import { Observable, of } from 'rxjs';
 import { startWith, switchMap } from 'rxjs/operators';
 import { StaticHtmlDirective } from '../static-html.directive';
 import { isInteger } from 'lodash';
-
 import { clone } from 'lodash';
 
 function toString(inputValue: any): string { 
   return typeof inputValue === 'string'? inputValue : ''
 }
 
-function getElementSelectedValidatorFn(requiredFn: Function) {
+function getElementSelectedValidatorFn(validateFn: Function) {
   return (control: FormControl) => {
-    if(requiredFn() && (!control.value || typeof control.value === 'string'))
-        return { 'noSelectedElement': true, 'required': true };
+    if(!validateFn())
+        return { 'noElementSelected': true };
     return null;
   };
+}
+
+enum ComponentState {
+  noElementSelected = 0,
+  elementSelected = 1,
+  editing = 2
 }
 
 @Component({
@@ -35,7 +40,7 @@ function getElementSelectedValidatorFn(requiredFn: Function) {
     }
   ]
 })
-export class BasicAutocompletedInputComponent implements OnInit, OnChanges, AfterViewInit, ControlValueAccessor {   
+export class BasicAutocompletedInputComponent implements OnInit, AfterViewInit, ControlValueAccessor {   
 
   @Input() componentSpec: any;
   @Input() required: boolean = false;
@@ -53,9 +58,10 @@ export class BasicAutocompletedInputComponent implements OnInit, OnChanges, Afte
 
   @Output() afterViewInitEmitter: EventEmitter<any> = new EventEmitter<any>();
 
-  elementCtrl = new FormControl()
+  elementCtrl = new FormControl();
   public filteredElements$!: Observable<any[]>;
-  private elementSelected: boolean = false;
+  selectedElement: any;
+  componentState!: ComponentState;
 
   @ViewChild('input', { static: false }) input!: ElementRef;
 
@@ -63,7 +69,39 @@ export class BasicAutocompletedInputComponent implements OnInit, OnChanges, Afte
     public dialog: MatDialog
   ) {
   }
+
+  get noElementSelected(): boolean {
+    return this.componentState === ComponentState.noElementSelected;
+  }
+
+  setNoElementSelected(): void {
+    this.componentState = ComponentState.noElementSelected;
+    this.elementCtrl.setValue('', {emitEvent: false});
+    this.onChange(null);
+  }
+
+  get elementSelected(): boolean {
+    return this.componentState === ComponentState.elementSelected;
+  }
+
+  setSelectedElement(element?: any): void {
+    if(element) {
+      this.selectedElement = element;
+      this.onChange(this.getOuterElement(element));
+    };
+    this.elementCtrl.setValue(this.selectedElement, {emitEvent: !element});
+    this.componentState = ComponentState.elementSelected;
+  }
+
+  get editing(): boolean {
+    return this.componentState === ComponentState.editing;
+  }
   
+  setEditing(): void {
+    this.elementCtrl.setValue('', {emitEvent: false});
+    this.componentState = ComponentState.editing;
+  }
+
   /* Implemetación de interfáz ControlValueAccessor */
   onChange: any = () => { };
   onTouched: any = () => { };
@@ -79,7 +117,6 @@ export class BasicAutocompletedInputComponent implements OnInit, OnChanges, Afte
     this.onTouched = fn;
   }
   setDisabledState?(isDisabled: boolean): void {
-    //this.disabled = isDisabled;
     if(isDisabled) {
       this.elementCtrl.disable();
     } else {
@@ -87,11 +124,6 @@ export class BasicAutocompletedInputComponent implements OnInit, OnChanges, Afte
     }
   }
   /* Fin implemetación de interfáz ControlValueAccessor */
-
-  ngOnChanges(changes: SimpleChanges) {
-    if(changes.element && !changes.element.firstChange)
-      this.updateFormFromElement()
-  }
 
   ngOnInit() {
 
@@ -109,7 +141,6 @@ export class BasicAutocompletedInputComponent implements OnInit, OnChanges, Afte
 
   ngAfterViewInit(): void {
     this.afterViewInitEmitter.emit();
-    //this.renderer.setProperty(this.input.nativeElement, 'disabled', this.disabled);
   }
 
   /* Métodos para sobreescribir en clases herederas */
@@ -143,7 +174,7 @@ export class BasicAutocompletedInputComponent implements OnInit, OnChanges, Afte
   protected get displayElementInListFn(): any {
     return (element: any) => this.componentSpec.displayElementInList(element);
   }
-  protected get displayInnerElementInInputFn(): any {
+  protected get displayInnerElementInInputFn(): (e: any)=>string {
     return (element: any) => this.componentSpec.displayInnerElementInInput(element);
   }
   protected get editorComponentClass(): any {
@@ -151,12 +182,21 @@ export class BasicAutocompletedInputComponent implements OnInit, OnChanges, Afte
   }
   /* Fin métodos para sobreescribir en clases herederas */
 
-  /* La idea de este getter copiado de la versión "protected"
-     es evitar tener que hacer "public" a este último (lo cual
-     es necesario ya que se lo invoca en el template) y así mantener
-     la misma convención que con el resto de los getters "protected"*/
-  get _displayInnerElementInInputFn(): any {
-    return this.displayInnerElementInInputFn;
+  get selectedElementDescription(): string {
+    return this.displayInnerElementInInputFn(this.selectedElement);
+  }
+
+  get selectedElementShortenedDescription(): string {
+    return this.shortenedDescriptionFn(this.selectedElement);
+  }
+
+  get shortenedDescriptionFn(): (element: any)=>string {
+    return (element: any) => {
+      let description: string = this.displayInnerElementInInputFn(element);
+      return this.elementSelected? 
+        description :
+        description.substring(0, 1).toUpperCase();
+    }
   }
 
   private initializeFormControl() {
@@ -172,7 +212,7 @@ export class BasicAutocompletedInputComponent implements OnInit, OnChanges, Afte
       validators = [];
     }
 
-    validators.push(getElementSelectedValidatorFn(()=>this.required));
+    validators.push(getElementSelectedValidatorFn( () => !this.required || !this.noElementSelected ));
 
     this.elementCtrl = new FormControl(
       this.initialValue,
@@ -185,10 +225,8 @@ export class BasicAutocompletedInputComponent implements OnInit, OnChanges, Afte
 
   private setObservable() {
     this.filteredElements$ = this.elementCtrl.valueChanges.pipe(
-      // Si se intenta editar cuando hay un objeto seleccionado, se mapea a un string vacío
-      map( value => this.blankIfSelected(value) ),
-      // Si se selecciona un objeto, se emite. Si se selecciona "Crear nuevo", se abre el
-      // diálogo. Si hay un objeto previamente seleccionado, se vacía el input
+      // Si se selecciona un objeto, se emite. Si se 
+      // selecciona "Crear nuevo", se abre el diálogo.
       tap( value => this.processNewValue(value) ),
       // Si se selecciona un objeto, se mapea a un string vacío
       map( toString ),
@@ -199,26 +237,13 @@ export class BasicAutocompletedInputComponent implements OnInit, OnChanges, Afte
     )
   }
 
-  private blankIfSelected(value: any): any {
-    return value && typeof value === 'string' && this.elementSelected? '' : value
-  }
-
   private processNewValue(value: any) {
     if (value && typeof value !== 'string') {
       let outputOuterElement = this.getOuterElement(value)
       if (outputOuterElement.isNew()) {
         this.openDialog(outputOuterElement);
-        this.elementSelected = false;
       } else {
-        this.onChange(outputOuterElement);
-        this.elementSelected = true;
-      }
-    } else {
-      let elementSelected = this.elementSelected;
-      this.elementSelected = false;
-      if(elementSelected) {
-        this.onChange(null);
-        this.elementCtrl.setValue('');
+        this.setSelectedElement(value);
       }
     }
   }
@@ -248,12 +273,6 @@ export class BasicAutocompletedInputComponent implements OnInit, OnChanges, Afte
     return obs$
   }
 
-  private updateFormFromElement(outerElement?: any) {
-    let value = outerElement
-    this.elementSelected = !!value
-    this.elementCtrl.patchValue(this.getInnerElement(value))
-  }
-
   displayElementInList(innerFilteredElement: any): string {
     let str = this.displayElementInListFn(innerFilteredElement);
     let isNew = this.getOuterElement(innerFilteredElement).isNew();
@@ -261,13 +280,14 @@ export class BasicAutocompletedInputComponent implements OnInit, OnChanges, Afte
   }
 
   public editSelectedElement() {
-    let selectedElement = this.elementCtrl.value
-    if(selectedElement && typeof selectedElement !== 'string') {
-      let elementForEdition = this.getOuterElement(selectedElement)
-      if(!elementForEdition.isNew()) {
-        this.openDialog(elementForEdition)
-      }
-    } 
+    if(!this.allowEditing) {
+      return;
+    }
+    this.setSelectedElement();
+    let elementForEdition = this.getOuterElement(this.selectedElement);
+    if(!elementForEdition.isNew()) {
+      this.openDialog(elementForEdition);
+    }
   }
 
   private openDialog(element: any): void {
@@ -283,7 +303,7 @@ export class BasicAutocompletedInputComponent implements OnInit, OnChanges, Afte
 
     dialogRef.afterClosed().subscribe( newElementData => {
       if(newElementData) {
-        this.updateFormFromElement(newElementData)
+        this.setSelectedElement(this.getInnerElement(newElementData));
       }
     });
   }
@@ -293,11 +313,11 @@ export class BasicAutocompletedInputComponent implements OnInit, OnChanges, Afte
   }
 
   public setValue(value: any): void {
-    this.elementCtrl.setValue(
-      value? this.getInnerElement(value) : null, 
-      { emitEvent: false }
-    );
-    this.elementSelected = !!value;
+    if(value) {
+      this.setSelectedElement(this.getInnerElement(value));
+    } else {
+      this.setNoElementSelected();
+    }
   }
 
   public markAsTouched() {
@@ -327,6 +347,12 @@ export class BasicAutocompletedInputComponent implements OnInit, OnChanges, Afte
   public setFocus() {
     if (this.input) {
       this.input.nativeElement.focus();
+    }
+  }
+
+  onInputFocusOut(): void {
+    if(this.editing) {
+      this.setSelectedElement();
     }
   }
 

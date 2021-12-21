@@ -1,7 +1,71 @@
-.element {
-    width: 5rem;
+// Input width
+$matFormFieldWidth: 15em;
+// Selected element backgroud color
+$selElemBkgClr: #ac92db;
+// Not editable selected element backgroud color
+$notEditSelElemBkgClr: #7f6ca1;
+// Light text color
+$lgtTxtClr: whitesmoke;
+// Estilos para permitir que el texto sea oculte más allá del ancho máximo 
+@mixin clippedText() {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: clip;
+}
+
+.innerClass {
+    width: $matFormFieldWidth;
 }
 
 .mat-option {
     font-size: 14px;
+}
+
+.pseudo-label {
+    font-size: 12px;
+    color: #673ab7;
+    margin: -2px 0 -17px 0;
+}
+
+.selectedElementContainer {
+    border-radius: 100px;
+    margin: 17px 5px 3.5px 0;
+    display: flex;
+    align-items: center;
+    button {
+        margin: 4px 4px 3px 2px;
+        mat-icon {
+            color:$lgtTxtClr;
+        }
+    }
+    button:hover {
+        background-color: #7e68a5;
+    }
+}
+
+.clickable {
+    background-color: $selElemBkgClr;
+}
+
+.clickable:hover {
+    cursor: pointer;
+}
+
+.unclickable {
+    background-color: $notEditSelElemBkgClr;
+    color: $lgtTxtClr;
+}
+
+.selectedElementDesc {
+    border-radius: 100px;
+    padding: 5px 10px 2px 10px;
+    line-height: 22px;
+    max-width: $matFormFieldWidth - 5em;
+    @include clippedText;
+}
+
+.selectedElementDescShort {
+    background-color: $notEditSelElemBkgClr;
+    color: $lgtTxtClr;
+    font-weight: 600;
 }
