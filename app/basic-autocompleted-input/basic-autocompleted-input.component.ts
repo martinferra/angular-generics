@@ -74,20 +74,24 @@ export class BasicAutocompletedInputComponent implements OnInit, AfterViewInit, 
     return this.componentState === ComponentState.noElementSelected;
   }
 
-  setNoElementSelected(): void {
+  setNoElementSelected(emitChange: boolean = true): void {
     this.componentState = ComponentState.noElementSelected;
     this.elementCtrl.setValue('', {emitEvent: false});
-    this.onChange(null);
+    if(emitChange) {
+      this.onChange(null);
+    }
   }
 
   get elementSelected(): boolean {
     return this.componentState === ComponentState.elementSelected;
   }
 
-  setSelectedElement(element?: any): void {
+  setSelectedElement(element?: any, emitChange: boolean = true): void {
     if(element) {
       this.selectedElement = element;
-      this.onChange(this.getOuterElement(element));
+      if(emitChange) {
+        this.onChange(this.getOuterElement(element));
+      }
     };
     this.elementCtrl.setValue(this.selectedElement, {emitEvent: !element});
     this.componentState = ComponentState.elementSelected;
@@ -314,9 +318,9 @@ export class BasicAutocompletedInputComponent implements OnInit, AfterViewInit, 
 
   public setValue(value: any): void {
     if(value) {
-      this.setSelectedElement(this.getInnerElement(value));
+      this.setSelectedElement(this.getInnerElement(value), false);
     } else {
-      this.setNoElementSelected();
+      this.setNoElementSelected(false);
     }
   }
 

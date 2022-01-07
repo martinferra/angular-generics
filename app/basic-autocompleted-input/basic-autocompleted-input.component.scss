@@ -24,12 +24,12 @@ $lgtTxtClr: whitesmoke;
 .pseudo-label {
     font-size: 12px;
     color: #673ab7;
-    margin: -2px 0 -17px 0;
+    margin: -2px 0 0 0;
 }
 
 .selectedElementContainer {
     border-radius: 100px;
-    margin: 17px 5px 3.5px 0;
+    margin: 0 5px 3.5px 0;
     display: flex;
     align-items: center;
     button {
@@ -68,4 +68,5 @@ $lgtTxtClr: whitesmoke;
     background-color: $notEditSelElemBkgClr;
     color: $lgtTxtClr;
     font-weight: 600;
+    min-width: 8px;
 }
