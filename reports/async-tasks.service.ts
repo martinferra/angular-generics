@@ -33,12 +33,20 @@ export class AsyncTasksService {
         deserializer: deserializer
       });
     } catch(e) {
-      return throwError(`Error connecting websocket: AsyncTasksService -> runTask -> ${e.toString()}`);
+      let errorMessage = "Not specified";
+      if (e instanceof Error) {
+        errorMessage = e.message;
+      }
+      return throwError(() => new Error(`Error connecting websocket: AsyncTasksService -> runTask -> ${errorMessage}`));
     };
     try {
       socket$.next({command: taskId, data: taskParams});
     } catch(e) {
-      return throwError(`Error sending websocket data: AsyncTasksService -> runTask -> ${e.toString()}`);
+      let errorMessage = "Not specified";
+      if (e instanceof Error) {
+        errorMessage = e.message;
+      }
+      return throwError(() => new Error(`Error sending websocket data: AsyncTasksService -> runTask -> ${errorMessage}`));
     };
     return socket$.asObservable().pipe(
       tap((message: any)=>{
