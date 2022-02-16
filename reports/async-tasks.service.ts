@@ -9,6 +9,11 @@ function deserializer(event: any) {
       command: 'blob',
       data: event.data
     }
+  } else if(typeof event.data === 'string' && event.data[0] !== '{') {
+    return {
+      command: 'txt',
+      data: event.data
+    }
   } else {
     let eventData: any = JSON.parse(event.data); 
     return {

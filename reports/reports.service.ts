@@ -13,13 +13,13 @@ export class ReportsService {
     private asyncTasksService: AsyncTasksService
   ) { }
 
-  public getReport(reportId: string, ...reportParams: any[]) : Observable<TaskState> {
+  public getReport(reportId: string, fileExt: string, ...reportParams: any[]) : Observable<TaskState> {
 
-    const fileName = reportId+'_'+moment().format('YYYYMMDDHHmmss')+'.xlsx';
+    const fileName = reportId+'_'+moment().format('YYYYMMDDHHmmss')+'.'+fileExt;
 
     return this.asyncTasksService.runTask('getReport', {reportId, reportParams}).pipe(
       tap((fileContent: any) => {
-        saveAs(fileContent, fileName);
+        saveAs(fileContent instanceof Blob? fileContent : new Blob([fileContent]), fileName);
       }),
       map(()=>{ return {
         message:'Descarga completa:  '+fileName,
