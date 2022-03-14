@@ -43,7 +43,8 @@ enum ComponentState {
 export class BasicAutocompletedInputComponent implements OnInit, AfterViewInit, ControlValueAccessor {   
 
   @Input() componentSpec: any;
-  @Input() required: boolean = false;
+  @Input() required!: boolean;
+  @Input() requiredFn!: Function;
   @Input() requiredErrorMessage: string = "";
   @Input() inputCssClass: string = "";
   @Input() label!: string;
@@ -87,6 +88,7 @@ export class BasicAutocompletedInputComponent implements OnInit, AfterViewInit, 
   }
 
   setSelectedElement(element?: any, emitChange: boolean = true): void {
+    this.componentState = ComponentState.elementSelected;
     if(element) {
       this.selectedElement = element;
       if(emitChange) {
@@ -94,7 +96,6 @@ export class BasicAutocompletedInputComponent implements OnInit, AfterViewInit, 
       }
     };
     this.elementCtrl.setValue(this.selectedElement, {emitEvent: !element});
-    this.componentState = ComponentState.elementSelected;
   }
 
   get editing(): boolean {
@@ -216,7 +217,11 @@ export class BasicAutocompletedInputComponent implements OnInit, AfterViewInit, 
       validators = [];
     }
 
-    validators.push(getElementSelectedValidatorFn( () => !this.required || !this.noElementSelected ));
+    validators.push(getElementSelectedValidatorFn( 
+      this.requiredFn !== undefined?
+        () => !(this.requiredFn() && this.noElementSelected) :
+        () => !(this.required && this.noElementSelected)
+    ));
 
     this.elementCtrl = new FormControl(
       this.initialValue,
