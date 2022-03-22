@@ -63,7 +63,7 @@ export abstract class DataService {
     return this.getMainEntityClass();
   }
 
-  private basicTranslateToServerData(data: any): any {
+  protected customPreTranslateToServerData(data: any): any {
     return data;
   }
 
@@ -72,7 +72,11 @@ export abstract class DataService {
   }
 
   private translateToServerData(data: any): any {
-    return this.customTranslateToServerData(this.basicTranslateToServerData(data));
+    return this.customTranslateToServerData(
+      classToPlain(
+        this.customPreTranslateToServerData(data)
+      )
+    );
   }
 
   protected getClassServices(): any {
@@ -152,7 +156,7 @@ export abstract class DataService {
   public save(objectToSave: any) : Observable<any> {
     return this.http.post(
       this.getUri('save'), 
-      this.translateToServerData(classToPlain(objectToSave))
+      this.translateToServerData(objectToSave)
     ).pipe(
       map((plainObject: any) => {
         if(!objectToSave._id && plainObject._id) {
