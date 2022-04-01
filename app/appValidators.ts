@@ -139,7 +139,7 @@ export class ControlValidator {
     }
 
     public hasErrors(): boolean {
-        return this.control.errors? this.control.touched || this.control.dirty : false
+        return this.control.errors? !!(this.control.errors.required || this.control.touched || this.control.dirty) : false
     }
 
     public get errorMessage(): string | null {
