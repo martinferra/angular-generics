@@ -4,7 +4,7 @@ import moment from 'moment';
 import { Observable, of } from 'rxjs';
 import { catchError, map, startWith, tap } from 'rxjs/operators';
 import { TaskState } from '../models/interfaces/taskState.interface';
-import { AsyncTasksService } from './async-tasks.service';
+import { TaskType, AsyncTasksService } from './async-tasks.service';
 
 @Injectable()
 export class ReportsService {
@@ -17,7 +17,7 @@ export class ReportsService {
 
     const fileName = `${reportId}${namePreffix?'_'+namePreffix:''}_${moment().format('YYYYMMDDHHmmss')}.${fileExt}`;
 
-    return this.asyncTasksService.runTask('getReport', {reportId, reportParams}).pipe(
+    return this.asyncTasksService.runTask(TaskType.rpc, {name: 'getReport', params: {reportId, reportParams}}).pipe(
       tap((fileContent: any) => {
         saveAs(fileContent instanceof Blob? fileContent : new Blob([fileContent]), fileName);
       }),

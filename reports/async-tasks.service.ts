@@ -3,22 +3,35 @@ import { Observable, throwError } from 'rxjs';
 import { filter, map, tap } from 'rxjs/operators';
 import { webSocket, WebSocketSubject } from 'rxjs/webSocket';
 
-function deserializer(event: any) {
-  if(event.data instanceof Blob) {
+export enum TaskType {
+  rpc = 'rpc',
+  subscription = 'subscription'
+}
+
+type Rpc = {
+  name: string;
+  params: any;
+};
+
+function deserializer(rawMessage: any) {
+  if(rawMessage.data instanceof Blob) {
     return {
-      command: 'blob',
-      data: event.data
+      type: 'blob',
+      data: rawMessage.data
     }
-  } else if(typeof event.data === 'string' && event.data[0] !== '{') {
-    return {
-      command: 'txt',
-      data: event.data
+  } else if(typeof rawMessage.data === 'string') {
+    let messageObject: any;
+    try {
+      messageObject = JSON.parse(rawMessage.data);
+    } catch(e) {
+      return {
+        type: 'txt',
+        data: rawMessage.data
+      }
     }
-  } else {
-    let eventData: any = JSON.parse(event.data); 
     return {
-      command: eventData.command,
-      data: eventData.data
+      type: messageObject.type || 'object',
+      data: messageObject.data || messageObject
     }
   }
 }
@@ -30,7 +43,7 @@ export class AsyncTasksService {
 
   constructor() { }
 
-  public runTask(taskId: string, taskParams: any): Observable<any> {
+  public runTask(type: TaskType, spec: string|number|Rpc): Observable<any> {
     let socket$: WebSocketSubject<any>;
     try {
       socket$ = webSocket({
@@ -45,7 +58,7 @@ export class AsyncTasksService {
       return throwError(() => new Error(`Error connecting websocket: AsyncTasksService -> runTask -> ${errorMessage}`));
     };
     try {
-      socket$.next({command: taskId, data: taskParams});
+      socket$.next({type, spec});
     } catch(e) {
       let errorMessage = "Not specified";
       if (e instanceof Error) {
@@ -55,26 +68,28 @@ export class AsyncTasksService {
     };
     return socket$.asObservable().pipe(
       tap((message: any)=>{
-        if(message.command === 'keepAlive') {
+        if(message.type === 'keepAlive') {
           console.log('keepAlive');
           let timeOut: number = message.data.timeOut || 30000;
           setTimeout(()=>{
             if(!socket$.closed) {
-              socket$.next({command: message.command, data: {timeOut}});
+              socket$.next({type: 'keepAlive', spec: timeOut});
             }
           }, timeOut);
         }
       }),
-      filter((message: any)=> message.command !== 'keepAlive'),
+      filter((message: any) => message.type !== 'keepAlive'),
       map( (message: any) => {
-        if(message.command !== 'error') {
+        if(message.type !== 'error') {
           return message.data;
         } else {
           throw new Error(JSON.stringify(message.data));
         }
       }),
       tap(() => {
-        socket$.complete();
+        if(type === TaskType.rpc) {
+          socket$.complete();
+        }
       })
     );
   }
