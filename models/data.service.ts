@@ -2,10 +2,14 @@ import { HttpClient } from '@angular/common/http';
 import { Observable, Observer } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { plainToClass, classToPlain } from 'class-transformer';
+import { AsyncTasksService, TaskType } from '../reports/async-tasks.service';
 
 export abstract class DataService {
 
-  constructor(private http : HttpClient) {
+  constructor(
+    private http : HttpClient,
+    private asyncTasksService: AsyncTasksService
+  ) {
     this.initializeMainEntityClass(this.mainEntityClass)
     this.getNestedEntityClasses().forEach( nestedEntityClass => this.initializeEntityClass(nestedEntityClass) )
   }
@@ -201,5 +205,11 @@ export abstract class DataService {
       ret = ret.pipe(map(plainObject => this.convertToClassInstance(plainObject)))
     };
     return ret;
+  }
+
+  public newElementObserver(): Observable<any> {
+    return this.asyncTasksService.runTask(TaskType.subscription, this.getModel()).pipe(
+      map((plainObject: any) => this.convertToClassInstance(plainObject))
+    );
   }
 }
