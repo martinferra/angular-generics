@@ -59,6 +59,10 @@ export abstract class DataService {
 
   abstract getMainEntityClass(): any;
 
+  protected getDiscriminatorFieldName(): string {
+    return '';
+  }
+
   protected getNestedEntityClasses(): any[] {
     return [];
   }
@@ -72,6 +76,14 @@ export abstract class DataService {
   }
 
   protected customTranslateToServerData(data: any): any {
+    let discriminatorFieldName: string = this.getDiscriminatorFieldName();
+    if(discriminatorFieldName) {
+      if(data instanceof Array) {
+        data.forEach((elem: any)=>delete elem[discriminatorFieldName])
+      } else {
+        delete data[discriminatorFieldName]
+      }
+    }
     return data;
   }
 
@@ -89,8 +101,9 @@ export abstract class DataService {
     return {};
   }
 
-  private getUri(method: string): string {
-    return '/api/'+this.getModel()+'/'+method;
+  private getUri(method: string, discriminator?: string): string {
+    var discParam: string = discriminator? '/'+discriminator : ''
+    return `/api/${this.getModel()}/${method}${discParam}`;
   }
 
   private init(obj: any) {
@@ -101,16 +114,23 @@ export abstract class DataService {
     return obj;
   }
 
-  private convertToClassInstance(plainObject: any): any {
+  private plainToClass(cls: any, plainObject: any, discriminator?: string) {
+    if(discriminator) {
+      plainObject[this.getDiscriminatorFieldName()] = discriminator;
+    }
+    return plainToClass(cls, plainObject);
+  }
+
+  private convertToClassInstance(plainObject: any, discriminator?: string): any {
     let obj: any;
     if(this.mainEntityClass.childClasses) {
       if(plainObject instanceof Array) {
-        obj = plainObject.map( (po: any) => plainToClass(this.childClass(po), po) );
+        obj = plainObject.map( (po: any) => this.plainToClass(this.childClass(po), po, discriminator) );
       } else {
-        obj = plainToClass(this.childClass(plainObject), plainObject);
+        obj = this.plainToClass(this.childClass(plainObject), plainObject, discriminator);
       }
     } else {
-      obj = plainToClass(this.mainEntityClass, plainObject);
+      obj = this.plainToClass(this.mainEntityClass, plainObject, discriminator);
     };
     return obj instanceof Array?
       obj.map((o: any)=>{
@@ -136,15 +156,15 @@ export abstract class DataService {
     return obj;
   }
 
-  public find(query: any = {}, method: string = 'find') : Observable<any> {
-    return this.http.post(this.getUri(method), query).pipe(
+  public find(query: any = {}, method: string = 'find', discriminator?: string) : Observable<any> {
+    return this.http.post(this.getUri(method, discriminator), query).pipe(
       map((plainObject: any) => {
         if(!plainObject) return plainObject;
         if(!(plainObject.documents && plainObject.count)) {
-          return this.convertToClassInstance(plainObject);
+          return this.convertToClassInstance(plainObject, discriminator);
         } else {
           return {
-            list: this.convertToClassInstance(plainObject.documents), 
+            list: this.convertToClassInstance(plainObject.documents, discriminator), 
             count: plainObject.count
           };
         }
@@ -152,14 +172,14 @@ export abstract class DataService {
     )
   }
 
-  public findById(id: string, query: any = {}) : Observable <any> {
+  public findById(id: string, query: any = {}, discriminator?: string) : Observable <any> {
     query.id = id;
-    return this.find(query, 'findById')
+    return this.find(query, 'findById', discriminator)
   }
 
-  public save(objectToSave: any) : Observable<any> {
+  public save(objectToSave: any, discriminator?: string) : Observable<any> {
     return this.http.post(
-      this.getUri('save'), 
+      this.getUri('save', discriminator), 
       this.translateToServerData(objectToSave)
     ).pipe(
       map((plainObject: any) => {
@@ -171,45 +191,46 @@ export abstract class DataService {
     )
   }
 
-  public updateMany(query: any, data: any) : Observable<any> {
+  public updateMany(query: any, data: any, discriminator?: string) : Observable<any> {
     return this.http.post(
-      this.getUri('updateMany'), {
+      this.getUri('updateMany', discriminator), {
         query: query,
         data: this.translateToServerData(classToPlain(data))
       }
     )
   }
 
-  public remove(query: any = {}, method: string = 'remove') : any {
+  public remove(query: any = {}, method: string = 'remove', discriminator?: string) : any {
     return Observable.create( (observer: Observer<any>) => {
-      this.http.post(this.getUri(method), query).subscribe( data => {
+      this.http.post(this.getUri(method, discriminator), query).subscribe( data => {
         observer.next(data);
         observer.complete();
       })
     })
   }
 
-  public removeById(id: string) : any {
-    return this.remove({ id }, 'removeById')
+  public removeById(id: string, discriminator?: string) : any {
+    return this.remove({ id }, 'removeById', discriminator)
   }
 
-  public count(query: any = {}) : Observable<number> {
-    return this.http.post(this.getUri('count'), query).pipe(
+  public count(query: any = {}, discriminator?: string) : Observable<number> {
+    return this.http.post(this.getUri('count', discriminator), query).pipe(
       map((value: any) => Number.parseInt(value))
     )
   }
 
-  public custom(customFnName: string, params: any, convertToClassInstance?: boolean) : Observable<any> {
-    let ret =  this.http.post(this.getUri(customFnName), params);
+  public custom(customFnName: string, params: any, convertToClassInstance?: boolean, discriminator?: string) : Observable<any> {
+    let ret =  this.http.post(this.getUri(customFnName, discriminator), params);
     if(convertToClassInstance) {
-      ret = ret.pipe(map(plainObject => this.convertToClassInstance(plainObject)))
+      ret = ret.pipe(map(plainObject => this.convertToClassInstance(plainObject, discriminator)))
     };
     return ret;
   }
 
-  public newElementObserver(): Observable<any> {
-    return this.asyncTasksService.runTask(TaskType.subscription, this.getModel()).pipe(
-      map((plainObject: any) => this.convertToClassInstance(plainObject))
+  public newElementObserver(discriminator?: string): Observable<any> {
+    let discPath: string = discriminator? '/'+discriminator : '';
+    return this.asyncTasksService.runTask(TaskType.subscription, this.getModel()+discPath).pipe(
+      map((plainObject: any) => this.convertToClassInstance(plainObject, discriminator))
     );
   }
 }
