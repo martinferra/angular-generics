@@ -177,9 +177,9 @@ export abstract class DataService {
     return this.find(query, 'findById', discriminator)
   }
 
-  public save(objectToSave: any, discriminator?: string) : Observable<any> {
+  public save(objectToSave: any, method?: string, discriminator?: string) : Observable<any> {
     return this.http.post(
-      this.getUri('save', discriminator), 
+      this.getUri(method || 'save', discriminator),
       this.translateToServerData(objectToSave)
     ).pipe(
       map((plainObject: any) => {
