@@ -230,7 +230,12 @@ export abstract class DataService {
   public newElementObserver(discriminator?: string): Observable<any> {
     let discPath: string = discriminator? '/'+discriminator : '';
     return this.asyncTasksService.runTask(TaskType.subscription, this.getModel()+discPath).pipe(
-      map((plainObject: any) => this.convertToClassInstance(plainObject, discriminator))
+      map((plainObject: any) => {
+        return {
+          key: plainObject.key, 
+          element: this.convertToClassInstance(plainObject.data, discriminator)
+        }
+      })
     );
   }
 }
