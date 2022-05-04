@@ -183,7 +183,7 @@ export abstract class DataService {
       this.translateToServerData(objectToSave)
     ).pipe(
       map((plainObject: any) => {
-        if(!objectToSave._id && plainObject._id) {
+        if(!objectToSave._id && plainObject?._id) {
           objectToSave._id = plainObject._id;
         }
         return plainObject;
