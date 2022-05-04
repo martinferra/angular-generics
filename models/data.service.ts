@@ -232,8 +232,8 @@ export abstract class DataService {
     return this.asyncTasksService.runTask(TaskType.subscription, this.getModel()+discPath).pipe(
       map((plainObject: any) => {
         return {
-          key: plainObject.key, 
-          element: this.convertToClassInstance(plainObject.data, discriminator)
+          path: plainObject.path, 
+          element: this.convertToClassInstance(plainObject.payload, discriminator)
         }
       })
     );
