@@ -10,7 +10,7 @@ export enum TaskType {
 
 type Rpc = {
   name: string;
-  params: any;
+  params?: any;
 };
 
 function deserializer(rawMessage: any) {
