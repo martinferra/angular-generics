@@ -160,7 +160,10 @@ export abstract class DataService {
     return this.http.post(this.getUri(method, discriminator), query).pipe(
       map((plainObject: any) => {
         if(!plainObject) return plainObject;
-        if(!(plainObject.documents && plainObject.count)) {
+        if(
+          !plainObject.hasOwnProperty('documents') || 
+          !plainObject.hasOwnProperty('count')
+        ) {
           return this.convertToClassInstance(plainObject, discriminator);
         } else {
           return {
