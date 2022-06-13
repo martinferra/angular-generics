@@ -20,6 +20,7 @@ export class PaginatedDataSource<T, Q> implements SimpleDataSource<T> {
 
   public firstElement?: T;
   public lastElement?: T;
+  private refElement: T | undefined;
   private lastPageSize: number;
 
   public loading$ = this.loading.asObservable();
@@ -59,33 +60,28 @@ export class PaginatedDataSource<T, Q> implements SimpleDataSource<T> {
 
     let pageWasResized: boolean = false;
     let navDirection: NavDirection = '';
-    let refElement: T | undefined;
-    let pageNumber: number;
 
     if(pageEvent) {
       pageWasResized = !!this.lastPageSize && pageEvent.pageSize !== this.lastPageSize;
       if(pageWasResized) {
-        pageNumber = 0;
         this.lastPageSize = pageEvent.pageSize;
       } else {
         if(pageEvent.previousPageIndex != null) {
           navDirection = (pageEvent.pageIndex - pageEvent.previousPageIndex) > 0? 'right' : 'left'
         } 
       }
-    } else {
-      pageNumber = 0;
     }
 
     // Si el usuario navegó hacia la página siguiente o la anterior
     if(navDirection) {
-      refElement = navDirection==='right'? this.lastElement : this.firstElement;
+      this.refElement = navDirection==='right'? this.lastElement : this.firstElement;
     }
 
     let sortParameters: Sort<T> = {
       property: sort.property,
       direction: sort.direction,
-      refValue: (refElement? refElement[sort.property] : null),
-      refId: refElement? (refElement as any)._id : null
+      refValue: (this.refElement? this.refElement[sort.property] : null),
+      refId: this.refElement? (this.refElement as any)._id : null
     }
 
     let paginationParams: PageRequest<T> = {
@@ -95,10 +91,6 @@ export class PaginatedDataSource<T, Q> implements SimpleDataSource<T> {
     }
 
     return this.endpoint(paginationParams, query).pipe(
-      map((page: Page<T>) => {
-        page.pageNumber = pageNumber;
-        return page;
-      }),
       tap( (page: Page<T>) => {
         this.firstElement = page.content[0];
         this.lastElement = page.content[page.content.length-1];
