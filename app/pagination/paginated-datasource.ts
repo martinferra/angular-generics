@@ -37,12 +37,12 @@ export class PaginatedDataSource<T, Q> implements SimpleDataSource<T> {
     const param$ = combineLatest([this.query, this.sort]);
     this.page$ = param$.pipe(
       switchMap(([query, sort]) =>
-        this.pageEvents.pipe(
+        this.refreshments.pipe(
           startWith(null),
-          switchMap((pageEvent: PageEvent | null) =>
-            this.refreshments.pipe(
+          switchMap(() =>
+            this.pageEvents.pipe(
               startWith(null),
-              switchMap(()=>
+              switchMap((pageEvent: PageEvent | null)=>
                 this.getPage(pageEvent, sort, query)/* .pipe(
                   indicate(this.loading)
                 ) */
