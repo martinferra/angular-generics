@@ -232,7 +232,7 @@ export abstract class DataService {
 
   public newElementObserver(discriminator?: string): Observable<any> {
     let discPath: string = discriminator? '/'+discriminator : '';
-    return this.asyncTasksService.runTask(TaskType.subscription, this.getModel()+discPath).pipe(
+    return this.asyncTasksService.runTask(TaskType.subscription, this.getModel()+discPath+'/new').pipe(
       map((plainObject: any) => {
         return {
           path: plainObject.path, 
