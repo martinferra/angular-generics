@@ -1,11 +1,11 @@
 import moment, { Moment } from "moment"
 
 export function dateToMoment(date: Date): Moment {
-    return moment(date)
+    return date != null? moment(date) : date;
 }
 
 export function stringToMoment(dateString: string): Moment {
-    return moment(dateString, 'YYYYMMDDHHmmss')
+    return dateString != null? moment(dateString, 'YYYYMMDDHHmmss') : dateString;
 }
   
 export function momentToDate(date: Date | Moment): Date|undefined {
