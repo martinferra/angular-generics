@@ -16,7 +16,8 @@ export const AppRegExp = {
     onlyLetters: /^([A-Za-z\u00C0-\u00D6\u00D8-\u00f6\u00f8-\u00ff\s]*)$/,
     onlyAlphaNumerics: /^([A-Za-z\u00C0-\u00D6\u00D8-\u00f6\u00f8-\u00ff\s\d]*)$/,
     onlyAlphaNumericsOrPunctuation: /^([A-Za-z\u00C0-\u00D6\u00D8-\u00f6\u00f8-\u00ff\s\d\.]*)$/,
-    noZeroAtStart: /^[^0]/
+    noZeroAtStart: /^[^0]/,
+    email: /^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}$/
 }
 
 export class CustomValidators {
