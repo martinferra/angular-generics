@@ -1,0 +1,39 @@
+$font-color: #E8EAED;
+$min-width: 25em;
+
+.header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    color: $font-color;
+    margin: 10px;
+    font-size: 1.2em;
+}
+
+.mat-divider {
+    border-top-color: $font-color;
+}
+
+.task-list {
+    margin: 10px 10px 0 10px;
+    min-width: $min-width;
+}
+
+.task-entry {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    min-width: $min-width;
+}
+
+.task-message {
+    color: $font-color;
+}
+
+.task-done-icon {
+    color: #36c000e1;
+}
+
+.task-error-icon {
+    color: #f80707;
+}

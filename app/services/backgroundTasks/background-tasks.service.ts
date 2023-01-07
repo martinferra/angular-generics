@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Observable, Subject, Subscription } from 'rxjs';
+import { Observable, ReplaySubject, Subject, Subscription } from 'rxjs';
 import { finalize, tap } from 'rxjs/operators';
 import { TaskState } from '../../../../generic/models/interfaces/taskState.interface';
 
@@ -10,7 +10,7 @@ export class BackgroundTasksService {
 
   constructor() { }
 
-  private _taskListEmitter: Subject<TaskState[]> = new Subject<TaskState[]>();
+  private _taskListEmitter: ReplaySubject<TaskState[]> = new ReplaySubject<TaskState[]>(1);
 
   public get taskListEmitter(): Subject<TaskState[]> {
     return this._taskListEmitter;

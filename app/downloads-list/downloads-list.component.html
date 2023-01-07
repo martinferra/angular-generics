@@ -1,0 +1,22 @@
+<div class="header">
+    <span>Descargas ({{taskList.length}})</span>
+    <mat-icon
+        *ngIf="showClearFinalizedButton"
+        (click)="clearFinalized()"
+        matTooltip="Limpiar lista"
+    >delete</mat-icon>
+</div>
+<mat-divider></mat-divider>
+<div class="task-list">
+    <div *ngFor="let taskState of taskList" class="task-entry">
+        <span class="task-message">{{taskState.message}}</span>
+        <mat-progress-spinner
+            *ngIf="showSpinner(taskState)"
+            [mode]="spinnerMode(taskState)"
+            [value]="spinnerValue(taskState)"
+            diameter="20">
+        </mat-progress-spinner>
+        <mat-icon *ngIf="showDoneIcon(taskState)" class="task-done-icon">done</mat-icon>
+        <mat-icon *ngIf="taskState.error" class="task-error-icon">error</mat-icon>
+    </div>
+</div>

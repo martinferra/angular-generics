@@ -3,7 +3,7 @@ import { PageEvent } from '@angular/material/paginator';
 import { Observable, Subject, BehaviorSubject, combineLatest } from 'rxjs';
 import { switchMap, startWith, map, share, tap } from 'rxjs/operators';
 //import { indicate } from './operators';
-import { Page, Sort, PageRequest, PaginatedEndpoint, NavDirection, SortDirection } from './pagination.types';
+import { Page, Sort, PageRequest, PaginatedEndpoint, NavDirection } from './pagination.types';
 
 export interface SimpleDataSource<T> extends DataSource<T> {
   connect(): Observable<T[]>;

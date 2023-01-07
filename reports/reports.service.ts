@@ -22,7 +22,7 @@ export class ReportsService {
         saveAs(fileContent instanceof Blob? fileContent : new Blob([fileContent]), fileName);
       }),
       map(()=>{ return {
-        message:'Descarga completa:  '+fileName,
+        message: fileName,
         error: false
       }}),
       catchError((error)=>{
