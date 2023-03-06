@@ -7,8 +7,13 @@ export class DynamicContainerDirective {
 
   constructor(private viewContainerRef: ViewContainerRef) { }
 
-  setComponent(componentType: Type<any>): void {
-    this.viewContainerRef.clear();
-    this.viewContainerRef.createComponent(componentType);
+  public setComponent(componentType: Type<any>): Object {
+    this.clear();
+    return this.viewContainerRef.createComponent(componentType).instance;
   }
+
+  public clear(): void {
+    this.viewContainerRef.clear();
+  }
+
 }
