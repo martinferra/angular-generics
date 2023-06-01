@@ -1,4 +1,4 @@
-import { Expose } from "class-transformer/decorators";
+import { Expose } from "class-transformer";
 
 export function WithDiscriminator(discriminatorKey: string = '__t') {
     return function(parentClass: Function) {

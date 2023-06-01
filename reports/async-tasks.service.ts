@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import { TokenStorage } from '@app/shared/services/auth/token.storage';
 import { Observable, throwError } from 'rxjs';
 import { filter, map, tap } from 'rxjs/operators';
 import { webSocket, WebSocketSubject } from 'rxjs/webSocket';
@@ -41,7 +42,7 @@ function deserializer(rawMessage: any) {
 })
 export class AsyncTasksService {
 
-  constructor() { }
+  constructor(private tokenStorage: TokenStorage) { }
 
   public runTask(type: TaskType, spec: string|number|Rpc): Observable<any> {
     let socket$: WebSocketSubject<any>;
@@ -58,7 +59,11 @@ export class AsyncTasksService {
       return throwError(() => new Error(`Error connecting websocket: AsyncTasksService -> runTask -> ${errorMessage}`));
     };
     try {
-      socket$.next({type, spec});
+      socket$.next({
+        token: this.tokenStorage.getToken(),
+        type,
+        spec
+      });
     } catch(e) {
       let errorMessage = "Not specified";
       if (e instanceof Error) {
