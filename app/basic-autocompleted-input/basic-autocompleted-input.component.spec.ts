@@ -3,8 +3,8 @@ import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 import { BasicAutocompletedInputComponent } from './basic-autocompleted-input.component';
 
 describe('BasicAutocompletedInputComponent', () => {
-  let component: BasicAutocompletedInputComponent;
-  let fixture: ComponentFixture<BasicAutocompletedInputComponent>;
+  let component: BasicAutocompletedInputComponent<any>;
+  let fixture: ComponentFixture<BasicAutocompletedInputComponent<any>>;
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({

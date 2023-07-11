@@ -43,6 +43,7 @@ izquierda como se esperaría (ver la clase CSS asociada "pseudo-label") -->
         [placeholder]="noElementSelected? placeholder : ''"
         [matAutocomplete]="auto"
         [tabindex]="_tabIndex"
+        (focus)="onInputFocus()"
         (focusout)="onInputFocusOut()"
         (keydown.esc)="onInputFocusOut()">
 
@@ -67,7 +68,8 @@ izquierda como se esperaría (ver la clase CSS asociada "pseudo-label") -->
     [panelWidth]="panelWidth">
     <mat-option 
         *ngFor="let innerFilteredElement of filteredElements$ | async" 
-        [value]="innerFilteredElement">
+        [value]="innerFilteredElement"
+        [matTooltip]="displayElementInList(innerFilteredElement)">
         <div 
             *appStaticHtml="displayElementInList(innerFilteredElement)"     
             (mousedown)="$event.preventDefault()">

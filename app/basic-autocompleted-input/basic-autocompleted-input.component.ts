@@ -4,8 +4,8 @@ import { MatDialog } from '@angular/material/dialog';
 
 import { map } from 'rxjs/internal/operators/map';
 import { tap } from 'rxjs/internal/operators/tap';
-import { Observable, of } from 'rxjs';
-import { startWith, switchMap } from 'rxjs/operators';
+import { Observable, Subject, of } from 'rxjs';
+import { mergeWith, shareReplay, startWith, switchMap, concatMap } from 'rxjs/operators';
 import { StaticHtmlDirective } from '../static-html.directive';
 import { isInteger } from 'lodash';
 import { clone } from 'lodash';
@@ -40,7 +40,7 @@ enum ComponentState {
     }
   ]
 })
-export class BasicAutocompletedInputComponent implements OnInit, AfterViewInit, ControlValueAccessor {   
+export class BasicAutocompletedInputComponent<T> implements OnInit, AfterViewInit, ControlValueAccessor {   
 
   @Input() componentSpec: any;
   @Input() required!: boolean;
@@ -56,18 +56,21 @@ export class BasicAutocompletedInputComponent implements OnInit, AfterViewInit, 
   @Input() tabIndex: number | boolean = 0;
   @Input() entityName!: string;
   @Input() disabled: boolean = false;
+  @Input() defaultElementsList$!: Observable<T[]> | undefined; 
 
   @Output() afterViewInitEmitter: EventEmitter<any> = new EventEmitter<any>();
 
   elementCtrl = new FormControl();
-  public filteredElements$!: Observable<any[]>;
+  public filteredElements$!: Observable<T[]>;
   selectedElement: any;
   componentState!: ComponentState;
-
+  onFocusEmitter: Subject<void> = new Subject();
+  _defaultElementsList$: Observable<T[]> | undefined
+  
   @ViewChild('input', { static: false }) input!: ElementRef;
 
   constructor(
-    public dialog: MatDialog
+    public dialog: MatDialog,
   ) {
   }
 
@@ -164,7 +167,7 @@ export class BasicAutocompletedInputComponent implements OnInit, AfterViewInit, 
   protected get minGlobalLength(): number {
     return this.componentSpec.minGlobalLength;
   }
-  protected filterElements(query: any): Observable<any[]> {
+  protected filterElements(query: any): Observable<T[]> {
     return this.componentSpec.filterElements(query);
   }
   protected getNewElementFromQuery(queryStr: any): any {
@@ -233,6 +236,11 @@ export class BasicAutocompletedInputComponent implements OnInit, AfterViewInit, 
   }
 
   private setObservable() {
+
+    this._defaultElementsList$ = this.defaultElementsList$?.pipe(
+      shareReplay({ bufferSize: 1, refCount: true })
+    );
+
     this.filteredElements$ = this.elementCtrl.valueChanges.pipe(
       // Si se selecciona un objeto, se emite. Si se 
       // selecciona "Crear nuevo", se abre el diálogo.
@@ -241,7 +249,8 @@ export class BasicAutocompletedInputComponent implements OnInit, AfterViewInit, 
       map( toString ),
       // Se normaliza la query
       map( queryStr => this.normalize(queryStr) ),
-      switchMap( queryStr => this.getFilteredElementsObs(queryStr) ),
+      switchMap( queryStr => queryStr? this.getFilteredElementsObs(queryStr) : this._defaultElementsList$||of([])),
+      mergeWith(this.onFocusEmitter.pipe(concatMap(()=>this._defaultElementsList$||of([])))),
       startWith([])
     )
   }
@@ -356,6 +365,12 @@ export class BasicAutocompletedInputComponent implements OnInit, AfterViewInit, 
   public setFocus() {
     if (this.input) {
       this.input.nativeElement.focus();
+    }
+  }
+
+  onInputFocus(): void {
+    if(!this.elementCtrl.value && this.defaultElementsList$) {
+      this.onFocusEmitter.next();
     }
   }
 
