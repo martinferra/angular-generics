@@ -1,12 +1,12 @@
-import { ValidatorFn, AbstractControl, FormGroup, AsyncValidatorFn, FormControl, FormArray } from "@angular/forms";
+import { ValidatorFn, AbstractControl, UntypedFormGroup, AsyncValidatorFn, UntypedFormControl, UntypedFormArray } from "@angular/forms";
 
 export function createValidator(name: string, control: AbstractControl): ControlValidator {
-    if(control instanceof FormGroup) {
-        return new FormValidator(control as FormGroup, name);
-    } else if(control instanceof FormArray) {
-        return new ArrayValidator(control as FormArray, name);
+    if(control instanceof UntypedFormGroup) {
+        return new FormValidator(control as UntypedFormGroup, name);
+    } else if(control instanceof UntypedFormArray) {
+        return new ArrayValidator(control as UntypedFormArray, name);
     } else {
-        return new ControlValidator(name, control as FormControl);
+        return new ControlValidator(name, control as UntypedFormControl);
     }
 }
 
@@ -181,7 +181,7 @@ export class FormValidator extends ControlValidator {
 
         super(formControlName, form);
 
-        Object.keys((this.control as FormGroup).controls).forEach( key => {
+        Object.keys((this.control as UntypedFormGroup).controls).forEach( key => {
             const ctrl = this.control.get(key);
             if(ctrl) {
                 this.controlValidators.push(createValidator(key, ctrl))

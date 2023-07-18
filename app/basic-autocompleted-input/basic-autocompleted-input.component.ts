@@ -1,5 +1,5 @@
 import { Component, Input, Output, OnInit, EventEmitter, ViewChild, ElementRef, AfterViewInit, forwardRef } from '@angular/core';
-import { ControlValueAccessor, FormControl, NG_VALUE_ACCESSOR } from '@angular/forms';
+import { ControlValueAccessor, UntypedFormControl, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 
 import { map } from 'rxjs/internal/operators/map';
@@ -15,7 +15,7 @@ function toString(inputValue: any): string {
 }
 
 function getElementSelectedValidatorFn(validateFn: Function) {
-  return (control: FormControl) => {
+  return (control: UntypedFormControl) => {
     if(!validateFn())
         return { 'noElementSelected': true };
     return null;
@@ -60,7 +60,7 @@ export class BasicAutocompletedInputComponent<T> implements OnInit, AfterViewIni
 
   @Output() afterViewInitEmitter: EventEmitter<any> = new EventEmitter<any>();
 
-  elementCtrl = new FormControl();
+  elementCtrl = new UntypedFormControl();
   public filteredElements$!: Observable<T[]>;
   selectedElement: any;
   componentState!: ComponentState;
@@ -226,7 +226,7 @@ export class BasicAutocompletedInputComponent<T> implements OnInit, AfterViewIni
         () => !(this.required && this.noElementSelected)
     ));
 
-    this.elementCtrl = new FormControl(
+    this.elementCtrl = new UntypedFormControl(
       this.initialValue,
       {
         validators: validators,
