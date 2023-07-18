@@ -1,6 +1,6 @@
 import { Component, Input, OnInit, ViewChild, SimpleChanges, OnChanges, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
-import { MatDialog } from '@angular/material/dialog';
-import { MatTable } from '@angular/material/table';
+import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog';
+import { MatLegacyTable as MatTable } from '@angular/material/legacy-table';
 
 @Component({
   selector: 'app-basic-list-editor',

@@ -1,5 +1,5 @@
 import { DataSource } from '@angular/cdk/collections';
-import { PageEvent } from '@angular/material/paginator';
+import { LegacyPageEvent as PageEvent } from '@angular/material/legacy-paginator';
 import { Observable, Subject, BehaviorSubject, combineLatest } from 'rxjs';
 import { switchMap, startWith, map, share, tap } from 'rxjs/operators';
 //import { indicate } from './operators';
