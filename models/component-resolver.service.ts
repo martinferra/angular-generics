@@ -24,16 +24,16 @@ export class ComponentResolver {
     this.componentsMap = new Map<string, Function>()
   }
 
-  public setRelationship(classObj: Function, operation: string, compName: string) {
+  public setRelationship(classObj: any, operation: string, compName: string) {
     this.relationshipsMap.set(classObj['classId']+'_'+operation, compName);
   }
 
-  public setComponent(componentClass: Function, key?: string) {
+  public setComponent(componentClass: any, key?: string) {
     this.componentsMap.set(key || componentClass['classId'], componentClass);
 
   }
 
-  public getComponentClass(classObj: Function, operation: string) {
+  public getComponentClass(classObj: any, operation: string) {
     return this.componentsMap.get(this.relationshipsMap.get(classObj['classId']+'_'+operation)||'');
   }
 }

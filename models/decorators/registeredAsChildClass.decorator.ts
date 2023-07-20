@@ -1,5 +1,5 @@
 export function RegisteredAsChildClass(classId: string, description: string) {
-    return function(childClass: Function) {
+    return function(childClass: any) {
         childClass['typeDesc'] = description
         if(!('classId' in childClass)) {
             Object.defineProperty(childClass, 'classId', {

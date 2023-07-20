@@ -44,7 +44,7 @@ export abstract class DataService {
   private initializeEntityClass(entityClass: any) {
 
     if(entityClass.classId)
-      this.managedClasses[entityClass.classId] = entityClass
+      this.managedClasses.set(entityClass.classId, entityClass);
 
     entityClass.prototype.isNew = function() {
       return this._id ? false : true;
@@ -145,7 +145,7 @@ export abstract class DataService {
   }
 
   public getClassByName(className: string): any {
-    return this.managedClasses[className]
+    return this.managedClasses.get(className);
   }
 
   public getInstance(className: string, ...args: any[]): any {

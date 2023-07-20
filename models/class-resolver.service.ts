@@ -15,7 +15,7 @@ export class ClassResolver {
     this.classMap = new Map<string, Function>()
   }
 
-  public setClass(classObj: Function, classId?: string): void {
+  public setClass(classObj: any, classId?: string): void {
     this.classMap.set(classId || classObj['classId'], classObj);
   }
 
