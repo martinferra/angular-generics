@@ -1,5 +1,5 @@
 // Input width
-$matFormFieldWidth: 15em;
+$matFormFieldWidth: 15.5em;
 // Selected element backgroud color
 $selElemBkgClr: #ac92db;
 // Not editable selected element backgroud color
@@ -14,33 +14,54 @@ $lgtTxtClr: whitesmoke;
 }
 
 .innerClass {
-    width: $matFormFieldWidth;
+    width: $matFormFieldWidth !important;
+    .selected-element-view {
+        margin: 0 10px 0 15px;
+        .pseudo-label {
+            font-size: 12px;
+            color: #673ab7;
+            margin: 2px 0 10px 0;
+        }
+        .selectedElementContainer {
+            border-radius: 100px;
+            display: flex;
+            align-items: center;
+            height: 1.6em;
+            max-width: 11em;
+            .selectedElementDesc {
+                border-radius: 100px;
+                padding: 3px 10px 2px 9px;
+                line-height: 22px;
+                max-width: $matFormFieldWidth - 5em;
+                @include clippedText;
+            }
+            .selectedElementDescShort {
+                background-color: $notEditSelElemBkgClr;
+                padding: 2px 7px 0 7px !important;
+                color: $lgtTxtClr;
+                font-weight: 600;
+                min-width: 8px;
+            }
+            button {
+                transform: scale(0.47);
+                margin: 0 -10px 0 0;
+                mat-icon {
+                    color:$lgtTxtClr;
+                }
+            }
+            button:hover {
+                background-color: #7e68a5;
+            }
+        }
+    }
+    .search-button {
+        transform: scale(0.7);
+        margin-left: -8px;
+    }
 }
 
 .mat-mdc-option {
     font-size: 14px;
-}
-
-.pseudo-label {
-    font-size: 12px;
-    color: #673ab7;
-    margin: -2px 0 0 0;
-}
-
-.selectedElementContainer {
-    border-radius: 100px;
-    margin: 0 5px 3.5px 0;
-    display: flex;
-    align-items: center;
-    button {
-        margin: 4px 4px 3px 2px;
-        mat-icon {
-            color:$lgtTxtClr;
-        }
-    }
-    button:hover {
-        background-color: #7e68a5;
-    }
 }
 
 .clickable {
@@ -54,19 +75,4 @@ $lgtTxtClr: whitesmoke;
 .unclickable {
     background-color: $notEditSelElemBkgClr;
     color: $lgtTxtClr;
-}
-
-.selectedElementDesc {
-    border-radius: 100px;
-    padding: 5px 10px 2px 10px;
-    line-height: 22px;
-    max-width: $matFormFieldWidth - 5em;
-    @include clippedText;
-}
-
-.selectedElementDescShort {
-    background-color: $notEditSelElemBkgClr;
-    color: $lgtTxtClr;
-    font-weight: 600;
-    min-width: 8px;
 }

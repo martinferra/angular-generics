@@ -1,9 +1,11 @@
-.header {
+.table-header {
     display: grid;
     grid-template-columns: 80% 20%;
+    margin-left: 20px;
+    align-items: center;
 }
 
-.action {
+.add-button {
     display: inline;
 }
 

@@ -55,5 +55,9 @@ mat-accordion .mat-mdc-form-field + .mat-form-field {
  }
 
 .singleModeContainer {
-  margin-top: 10px;
+  margin-top: 25px;
+}
+
+mat-panel-title {
+  white-space: nowrap;
 }

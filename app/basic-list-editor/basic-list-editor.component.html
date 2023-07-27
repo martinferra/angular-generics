@@ -5,11 +5,11 @@
 </ng-container>
 
 <ng-template #content>
-    <div class="header">
+    <div class="table-header">
         <h3>{{componentSpec.headerSpec.title}}</h3>
         <button
             *ngIf="allowEdition"
-            mat-icon-button class="action"
+            mat-icon-button class="add-button"
             type="button" 
             (click)="newElement(); $event.preventDefault()">
             <mat-icon mat-list-icon>add</mat-icon>

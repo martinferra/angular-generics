@@ -1,24 +1,33 @@
-<ng-container *ngIf="cardFormat ; else content">
+<ng-container *ngIf="cardFormat; else defaultFormat">
     <mat-card appearance="outlined">
-        <ng-container *ngTemplateOutlet="content"></ng-container>
+        <mat-card-header>
+            <ng-container *ngTemplateOutlet="header"></ng-container>
+        </mat-card-header>
+        <mat-card-content>
+            <ng-container *ngTemplateOutlet="content"></ng-container>
+        </mat-card-content>
     </mat-card>
 </ng-container>
 
-<ng-template #content>
+<ng-template #defaultFormat>
+    <ng-container *ngTemplateOutlet="header"></ng-container>
+    <ng-container *ngTemplateOutlet="content"></ng-container>
+</ng-template>
 
+<ng-template #header>
     <div class="header">
 
         <h3 *ngIf="componentSpec?.headerSpec?.title">{{componentSpec.headerSpec.title}}</h3>
 
         <div *ngIf="showAddButton" class="addCtrGroup">
             <ng-container *ngIf="entityHasSubtypes; else noSubtypes">
-                <button mat-icon-button class="action"
+                <button mat-icon-button
                     (click)="showEntitySubtypes = !showEntitySubtypes; $event.preventDefault()">
                     <mat-icon mat-list-icon>menu</mat-icon>
                 </button>
             </ng-container>
             <ng-template #noSubtypes>
-                <button mat-icon-button class="action"
+                <button mat-icon-button
                     (click)="newElement(componentSpec.entityClass); $event.preventDefault()">
                     <mat-icon mat-list-icon>add</mat-icon>
                 </button>
@@ -28,7 +37,7 @@
                     class="subtypeRow unselectable"
                     (click)="newElement(componentSpec.entityClass.childClasses[idx]); showEntitySubtypes = false; $event.preventDefault()">
                     <span>{{componentSpec.entityClass.childClasses[idx].typeDesc}}</span>
-                    <button mat-icon-button class="action">
+                    <button mat-icon-button>
                         <mat-icon mat-list-icon>add</mat-icon>
                     </button>
                 </div>
@@ -36,7 +45,9 @@
         </div>
 
     </div>
+</ng-template>
 
+<ng-template #content>
     <div *ngIf="datasource.length && (showDeleteButtonValues$ | async) as showDeleteButtonValues" class="accordion-container">
         <mat-accordion>
             <mat-expansion-panel #thisPanel
@@ -82,5 +93,4 @@
             </mat-expansion-panel>
         </mat-accordion>
     </div>
-
 </ng-template>

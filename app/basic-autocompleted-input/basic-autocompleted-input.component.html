@@ -1,34 +1,37 @@
-<!-- Se creó este elemento para emular el comportamiento del label del mat-form-field,
-pero corrigiendo el hecho de que este último se alínea horizontalmente con el input 
-cuando hay un elemento con la directiva "matPrefix" en lugar de quedar alineado a la 
-izquierda como se esperaría (ver la clase CSS asociada "pseudo-label") -->
-<div class="pseudo-label" *ngIf="(label || placeholder) && !noElementSelected">{{ label || placeholder }}</div>
 <mat-form-field [ngClass]="inputCssClass" class="innerClass">
 
     <mat-label *ngIf="label && noElementSelected">{{ label }}</mat-label>
-
+    
     <div
-        class="selectedElementContainer"
-        [ngClass]="{clickable:!disabled,unclickable:disabled}"
-        matPrefix 
-        *ngIf="!noElementSelected">
-        <div 
-            class="selectedElementDesc unselectable"
-            [ngClass]="{selectedElementDescShort:editing}"
-            (click)="editSelectedElement(); $event.preventDefault()"
-            [matTooltip]="selectedElementDescription">
-            {{selectedElementShortenedDescription}}
+        *ngIf="!noElementSelected"
+        class="selected-element-view"
+        matIconPrefix>
+        <!-- Se creó este elemento para emular el comportamiento del label del mat-form-field,
+        pero corrigiendo el hecho de que este último se alínea horizontalmente con el input 
+        cuando hay un elemento con la directiva "matPrefix" en lugar de quedar alineado a la 
+        izquierda como se esperaría (ver la clase CSS asociada "pseudo-label") -->
+        <div class="pseudo-label" *ngIf="label || placeholder">{{ label || placeholder }}</div>
+        <div
+            class="selectedElementContainer"
+            [ngClass]="{clickable:!disabled,unclickable:disabled}">
+            <div
+                class="selectedElementDesc unselectable"
+                [ngClass]="{selectedElementDescShort:editing}"
+                (click)="editSelectedElement(); $event.preventDefault()"
+                [matTooltip]="selectedElementDescription">
+                {{selectedElementShortenedDescription}}
+            </div>
+            <button
+                type="button"
+                *ngIf="!noElementSelected && !disabled"
+                mat-icon-button
+                [disabled]="disabled"
+                tabindex="-1"
+                (mousedown)="$event.preventDefault()"
+                (click)="setNoElementSelected(); $event.preventDefault()">
+                    <mat-icon mat-list-icon>clear</mat-icon>
+            </button>
         </div>
-        <button
-            type="button"
-            *ngIf="!noElementSelected && !disabled" 
-            mat-icon-button
-            [disabled]="disabled"
-            tabindex="-1"
-            (mousedown)="$event.preventDefault()"
-            (click)="setNoElementSelected(); $event.preventDefault()">
-                <mat-icon mat-list-icon>clear</mat-icon>
-        </button>
     </div>
 
     <!-- En lugar de *ngIf, se usa hidden como etrategia para ocultar o mostrar 
@@ -48,12 +51,13 @@ izquierda como se esperaría (ver la clase CSS asociada "pseudo-label") -->
         (keydown.esc)="onInputFocusOut()">
 
     <button
+        class="search-button"
         type="button"
         *ngIf="elementSelected && !disabled" 
-        matSuffix mat-icon-button
+        matIconSuffix mat-icon-button
         tabindex="-1"
         (click)="setEditing(); $event.preventDefault()">
-            <mat-icon mat-list-icon class="search-icon">search</mat-icon>
+            <mat-icon mat-list-icon>search</mat-icon>
     </button>
 
     <mat-hint *ngIf="hint">{{ hint }}</mat-hint>

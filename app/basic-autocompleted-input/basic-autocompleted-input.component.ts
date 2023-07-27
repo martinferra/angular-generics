@@ -311,7 +311,7 @@ export class BasicAutocompletedInputComponent<T> implements OnInit, AfterViewIni
   private openDialog(element: any): void {
 
     const dialogRef = this.dialog.open(this.editorComponentClass, {
-      width: '600px',
+      width: '750px',
       data: { 
         element,
         contextData: clone(this.contextData),
