@@ -57,6 +57,7 @@ export class BasicAutocompletedInputComponent<T> implements OnInit, AfterViewIni
   @Input() entityName!: string;
   @Input() disabled: boolean = false;
   @Input() defaultElementsList$!: Observable<T[]> | undefined; 
+  @Input() showTooltip: boolean = true;
 
   @Output() afterViewInitEmitter: EventEmitter<any> = new EventEmitter<any>();
 
@@ -184,6 +185,10 @@ export class BasicAutocompletedInputComponent<T> implements OnInit, AfterViewIni
   }
   protected get displayInnerElementInInputFn(): (e: any)=>string {
     return (element: any) => this.componentSpec.displayInnerElementInInput(element);
+  }
+  protected get displayElementInTooltip(): (e: any)=>string {
+    return (element: any) => !this.showTooltip? '' : this.componentSpec.displayElementInTooltip?.(element) ||
+      this.displayElementInListFn(element);
   }
   protected get editorComponentClass(): any {
     return this.componentSpec.editorComponentClass;

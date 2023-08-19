@@ -73,7 +73,7 @@
     <mat-option 
         *ngFor="let innerFilteredElement of filteredElements$ | async" 
         [value]="innerFilteredElement"
-        [matTooltip]="displayElementInList(innerFilteredElement)">
+        [matTooltip]="displayElementInTooltip(innerFilteredElement)">
         <div 
             *appStaticHtml="displayElementInList(innerFilteredElement)"     
             (mousedown)="$event.preventDefault()">
