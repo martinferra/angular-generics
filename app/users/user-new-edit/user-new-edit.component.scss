@@ -1,0 +1,13 @@
+.rolesContainer {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.user-email {
+  padding: 4px;
+  text-align: center;
+  border: 1px solid;
+  border-color: rgba(60, 64, 67, 0.222);
+  border-radius: 15px;
+  margin: 20px 15px 0 15px;
+}

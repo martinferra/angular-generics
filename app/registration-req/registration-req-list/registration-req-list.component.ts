@@ -1,0 +1,88 @@
+import { Component, OnInit, ViewChild } from '@angular/core';
+import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
+import { MatTableDataSource } from '@angular/material/table';
+import { MatPaginator } from '@angular/material/paginator';
+import { MatDialog } from '@angular/material/dialog';
+import { RegistrationReqService } from '../../../models/registration-req/registration-req.service';
+import { RegistrationReq } from '../../../models/registration-req/registration-req.model';
+import { User } from '../../../models/user/user.model';
+import { UserService } from '../../../models/user/user.service';
+import { ConfirmationDialogComponent } from '../../confirmation-dialog/confirmation-dialog.component';
+
+@Component({
+  selector: 'app-registration-req-list',
+  templateUrl: './registration-req-list.component.html',
+  styleUrls: ['./registration-req-list.component.scss'],
+})
+export class RegistrationReqListComponent implements OnInit {
+  @ViewChild(MatPaginator, { static: false }) paginator!: MatPaginator;
+
+  columnsToDisplay = ['email', 'fullname', 'actions'];
+
+  registrationReqList$!: Observable<MatTableDataSource<any>>;
+
+  constructor(
+    private registrationReqService: RegistrationReqService,
+    private userService: UserService,
+    public dialog: MatDialog,
+    private confirmationDialog: MatDialog
+  ) {}
+
+  ngOnInit() {
+    this.loadGridData();
+  }
+
+  loadGridData(registrationReqFilterData: any = null): void {
+    setTimeout(() => {
+      this.paginator.pageIndex = 0;
+
+      this.registrationReqList$ = this.registrationReqService
+        .findGridData(registrationReqFilterData || {})
+        .pipe(
+          map((registrationReqs: Array<any>) =>
+            this.createDataSource(registrationReqs)
+          )
+        );
+    });
+  }
+
+  private createDataSource(list: Array<any>): MatTableDataSource<any> {
+    let mtds = new MatTableDataSource<any>(list);
+    this.paginator.length = list.length;
+    this.paginator.pageSize = 5;
+    this.paginator.pageSizeOptions = [3, 5, 10];
+    mtds.paginator = this.paginator;
+    return mtds;
+  }
+
+  acceptRequest(registrationReq: RegistrationReq): void {
+    let user = new User();
+    user.email = registrationReq.email;
+    user.fullname = registrationReq.fullname;
+    this.userService.save(user).subscribe();
+    (registrationReq as any).remove().subscribe(() => {
+      this.loadGridData();
+    });
+  }
+
+  rejectRequest(registrationReq: RegistrationReq): void {
+    this.confirmationDialog
+      .open(ConfirmationDialogComponent, {
+        data: {
+          title: 'Confirmación',
+          message: `Se va a eliminar el pedido para "${registrationReq.fullname}"`,
+          cancelBtnText: 'Cancelar',
+          confirmBtnText: 'Aceptar',
+        },
+      })
+      .afterClosed()
+      .subscribe((confirm: boolean) => {
+        if (confirm) {
+          (registrationReq as any).remove().subscribe(() => {
+            this.loadGridData();
+          });
+        }
+      });
+  }
+}

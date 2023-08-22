@@ -1,0 +1,33 @@
+/* TODO(mdc-migration): The following rule targets internal classes of paginator that may no longer apply for the MDC version. */
+mat-paginator {
+  background-color: transparent;
+}
+
+h1 {
+  margin: 0 20px;
+  display: inline;
+}
+
+.action {
+  margin: 0 20px;
+  display: inline;
+}
+
+.action mat-icon {
+  transform: scale(1.5);
+}
+
+.list-action {
+  margin-right: 20px;
+  display: inline;
+}
+
+.action {
+  max-width: 120px;
+}
+
+/* TODO(mdc-migration): The following rule targets internal classes of paginator that may no longer apply for the MDC version. */
+mat-table,
+mat-paginator {
+  margin: 10px;
+}

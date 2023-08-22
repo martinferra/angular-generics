@@ -1,0 +1,68 @@
+<ng-container *ngIf="user">
+  <ng-container *ngIf="userIsNew; else editText">
+    <h1 mat-dialog-title>Nuevo</h1>
+  </ng-container>
+  <ng-template #editText>
+    <div class="user-email">{{ user.email }}</div>
+  </ng-template>
+
+  <form [formGroup]="checkoutForm" (ngSubmit)="onSubmit()">
+    <mat-dialog-content>
+      <div class="parameter-wrapper">
+        <mat-form-field>
+          <mat-label>Nombre completo</mat-label>
+          <input
+            matInput
+            required
+            type="text"
+            formControlName="fullname"
+            placeholder="Nombre completo"
+            autocomplete="off"
+          />
+          <mat-hint>Nombre completo</mat-hint>
+          <mat-error *ngIf="formValidator.get('fullname')?.hasErrors()">
+            {{ formValidator.get('fullname')?.errorMessage }}
+          </mat-error>
+        </mat-form-field>
+      </div>
+
+      <div *ngIf="userIsNew" class="parameter-wrapper">
+        <mat-form-field>
+          <mat-label>Email</mat-label>
+          <input
+            matInput
+            required
+            type="email"
+            formControlName="email"
+            placeholder="Email"
+            autocomplete="off"
+          />
+          <mat-hint>Email</mat-hint>
+          <mat-error *ngIf="formValidator.get('email')?.hasErrors()">
+            {{ formValidator.get('email')?.errorMessage }}
+          </mat-error>
+        </mat-form-field>
+      </div>
+
+      <div formArrayName="roles" class="rolesContainer parameter-wrapper">
+        <mat-checkbox
+          *ngFor="let role of roles.controls; let i = index"
+          [formControlName]="i"
+          class="checkbox"
+          >{{ rolesDescriptors[i].desc }}
+        </mat-checkbox>
+      </div>
+    </mat-dialog-content>
+
+    <mat-dialog-actions align="end">
+      <button
+        mat-stroked-button
+        class="action"
+        type="submit"
+        [disabled]="disableSubmitButton"
+      >
+        Aceptar
+      </button>
+    </mat-dialog-actions>
+  </form>
+</ng-container>
