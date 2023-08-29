@@ -2,6 +2,7 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Subscription } from 'rxjs';
 import { TaskState } from '../../../generic/models/interfaces/taskState.interface';
 import { BackgroundTasksService } from '../services/backgroundTasks/background-tasks.service';
+import { ProgressSpinnerMode } from '@angular/material/progress-spinner';
 
 @Component({
   selector: 'app-tasks-drop-down-viewer',
@@ -35,7 +36,7 @@ export class TasksDropDownViewerComponent implements OnInit, OnDestroy {
   showSpinner(taskState: TaskState): boolean {
     return !taskState.error && (!taskState.progress || taskState.progress<0);
   }
-  spinnerMode(taskState: TaskState): string {
+  spinnerMode(taskState: TaskState): ProgressSpinnerMode {
     return !taskState.progress || taskState.progress<0? 'indeterminate' : 'determinate';
   }
   spinnerValue(taskState: TaskState): number {

@@ -17,36 +17,38 @@
     </div>
     <ng-container *ngIf="datasource?.length">
         <mat-divider></mat-divider>
-        <mat-table #table [dataSource]="datasource">
 
-        <ng-container *ngFor="let columnSpec of componentSpec.tableSpec.columnsSpec" matColumnDef="{{columnSpec.id}}">
-            <mat-header-cell *matHeaderCellDef> {{columnSpec.headerCaption}} </mat-header-cell>
-            <mat-cell *matCellDef="let element"> {{ columnSpec.getValue(element) }} </mat-cell>
+        <ng-container *ngIf="datasource">
+            <mat-table #table [dataSource]="datasource">
+                <ng-container *ngFor="let columnSpec of componentSpec.tableSpec.columnsSpec" matColumnDef="{{columnSpec.id}}">
+                    <mat-header-cell *matHeaderCellDef> {{columnSpec.headerCaption}} </mat-header-cell>
+                    <mat-cell *matCellDef="let element"> {{ columnSpec.getValue(element) }} </mat-cell>
+                </ng-container>
+            
+                <ng-container matColumnDef="actions">
+                    <mat-header-cell *matHeaderCellDef> Acciones </mat-header-cell>
+                    <mat-cell *matCellDef="let element; let idx = index">
+                        <button *ngFor="let actionSpec of componentSpec.tableSpec.actionsSpec"
+                            mat-stroked-button class="list-action" (click)="actionSpec.callback(element._id, idx); $event.preventDefault()">
+                            {{actionSpec.btnCaption}}
+                        </button>
+                        <button mat-icon-button
+                            [matTooltip]="allowEdition? 'Modificar' : 'Ver'"
+                            (click)="editElement(element, idx); $event.preventDefault()">
+                            <mat-icon mat-list-icon>{{allowEdition? 'edit' : 'loupe'}}</mat-icon>
+                        </button>
+                        <button *ngIf="allowEdition" mat-icon-button
+                            matTooltip="Eliminar"
+                            (click)="deleteElement(element, idx); $event.preventDefault()">
+                            <mat-icon mat-list-icon>delete</mat-icon>
+                        </button>
+                    </mat-cell>
+                </ng-container>
+            
+                <mat-header-row *matHeaderRowDef="columns"></mat-header-row>
+                <mat-row *matRowDef="let myRowData; columns: columns"></mat-row>
+            
+            </mat-table>
         </ng-container>
-        
-        <ng-container matColumnDef="actions">
-            <mat-header-cell *matHeaderCellDef> Acciones </mat-header-cell>
-            <mat-cell *matCellDef="let element; let idx = index">
-                <button *ngFor="let actionSpec of componentSpec.tableSpec.actionsSpec"
-                    mat-stroked-button class="list-action" (click)="actionSpec.callback(element._id, idx); $event.preventDefault()">
-                    {{actionSpec.btnCaption}}
-                </button>
-                <button mat-icon-button 
-                    [matTooltip]="allowEdition? 'Modificar' : 'Ver'"
-                    (click)="editElement(element, idx); $event.preventDefault()">
-                    <mat-icon mat-list-icon>{{allowEdition? 'edit' : 'loupe'}}</mat-icon>
-                </button>
-                <button *ngIf="allowEdition" mat-icon-button
-                    matTooltip="Eliminar"
-                    (click)="deleteElement(element, idx); $event.preventDefault()">
-                    <mat-icon mat-list-icon>delete</mat-icon>
-                </button>
-            </mat-cell>
-        </ng-container>
-        
-        <mat-header-row *matHeaderRowDef="columns"></mat-header-row>
-        <mat-row *matRowDef="let myRowData; columns: columns"></mat-row>
-        
-        </mat-table>
     </ng-container>
 </ng-template>
