@@ -1,55 +1,57 @@
-<div class="header">
-  <h1>Usuarios</h1>
-  <mat-paginator></mat-paginator>
-  <button mat-icon-button (click)="openUserNewEditDialog()" class="action">
-    <mat-icon>person_add</mat-icon>
-  </button>
+<div class="container">
+  <div class="header">
+    <h1>Usuarios</h1>
+    <mat-paginator></mat-paginator>
+    <button mat-icon-button (click)="openUserNewEditDialog()" class="action">
+      <mat-icon>person_add</mat-icon>
+    </button>
+  </div>
+  
+  <mat-divider></mat-divider>
+  
+  <ng-container *ngIf="userList$ | async as datasource">
+    <mat-table #table [dataSource]="datasource">
+      <ng-container matColumnDef="email">
+        <mat-header-cell *matHeaderCellDef>Email</mat-header-cell>
+        <mat-cell *matCellDef="let user"> {{ user.email }} </mat-cell>
+      </ng-container>
+  
+      <ng-container matColumnDef="fullname">
+        <mat-header-cell *matHeaderCellDef>Nombre completo</mat-header-cell>
+        <mat-cell *matCellDef="let user"> {{ user.fullname }} </mat-cell>
+      </ng-container>
+  
+      <ng-container matColumnDef="isAdmin">
+        <mat-header-cell *matHeaderCellDef>Administrador</mat-header-cell>
+        <mat-cell *matCellDef="let user">
+          <mat-icon *ngIf="user.isAdmin">done</mat-icon>
+        </mat-cell>
+      </ng-container>
+  
+      <ng-container matColumnDef="actions">
+        <mat-header-cell *matHeaderCellDef> Acciones </mat-header-cell>
+        <mat-cell *matCellDef="let user">
+          <button
+            mat-icon-button
+            class="list-action"
+            (click)="openUserNewEditDialog(user)"
+            matTooltip="Editar"
+          >
+            <mat-icon mat-list-icon>edit</mat-icon>
+          </button>
+          <button
+            mat-icon-button
+            class="list-action"
+            (click)="remove(user)"
+            matTooltip="Eliminar"
+          >
+            <mat-icon mat-list-icon>delete</mat-icon>
+          </button>
+        </mat-cell>
+      </ng-container>
+  
+      <mat-header-row *matHeaderRowDef="columnsToDisplay"></mat-header-row>
+      <mat-row *matRowDef="let myRowData; columns: columnsToDisplay"></mat-row>
+    </mat-table>
+  </ng-container>
 </div>
-
-<mat-divider></mat-divider>
-
-<ng-container *ngIf="userList$ | async as datasource">
-  <mat-table #table [dataSource]="datasource">
-    <ng-container matColumnDef="email">
-      <mat-header-cell *matHeaderCellDef>Email</mat-header-cell>
-      <mat-cell *matCellDef="let user"> {{ user.email }} </mat-cell>
-    </ng-container>
-  
-    <ng-container matColumnDef="fullname">
-      <mat-header-cell *matHeaderCellDef>Nombre completo</mat-header-cell>
-      <mat-cell *matCellDef="let user"> {{ user.fullname }} </mat-cell>
-    </ng-container>
-  
-    <ng-container matColumnDef="isAdmin">
-      <mat-header-cell *matHeaderCellDef>Administrador</mat-header-cell>
-      <mat-cell *matCellDef="let user">
-        <mat-icon *ngIf="user.isAdmin">done</mat-icon>
-      </mat-cell>
-    </ng-container>
-  
-    <ng-container matColumnDef="actions">
-      <mat-header-cell *matHeaderCellDef> Acciones </mat-header-cell>
-      <mat-cell *matCellDef="let user">
-        <button
-          mat-icon-button
-          class="list-action"
-          (click)="openUserNewEditDialog(user)"
-          matTooltip="Editar"
-        >
-          <mat-icon mat-list-icon>edit</mat-icon>
-        </button>
-        <button
-          mat-icon-button
-          class="list-action"
-          (click)="remove(user)"
-          matTooltip="Eliminar"
-        >
-          <mat-icon mat-list-icon>delete</mat-icon>
-        </button>
-      </mat-cell>
-    </ng-container>
-  
-    <mat-header-row *matHeaderRowDef="columnsToDisplay"></mat-header-row>
-    <mat-row *matRowDef="let myRowData; columns: columnsToDisplay"></mat-row>
-  </mat-table>
-</ng-container>
