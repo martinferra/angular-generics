@@ -50,7 +50,7 @@ export class RegistrationReqListComponent implements OnInit {
   private createDataSource(list: Array<any>): MatTableDataSource<any> {
     let mtds = new MatTableDataSource<any>(list);
     this.paginator.length = list.length;
-    this.paginator.pageSize = 5;
+    this.paginator.pageSize = 10;
     this.paginator.pageSizeOptions = [3, 5, 10];
     mtds.paginator = this.paginator;
     return mtds;
