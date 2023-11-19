@@ -13,9 +13,9 @@ export class ReportsService {
     private asyncTasksService: AsyncTasksService
   ) { }
 
-  public getReport(reportId: string, namePreffix: string = '', fileExt: string, ...reportParams: any[]) : Observable<TaskState> {
+  public getReport(reportId: string, filenamePreffix: string = '', fileExt: string, ...reportParams: any[]) : Observable<TaskState> {
 
-    const fileName = `${reportId}${namePreffix?'_'+namePreffix:''}_${moment().format('YYYYMMDDHHmmss')}.${fileExt}`;
+    const fileName = `${filenamePreffix || reportId}_${moment().format('YYYYMMDDHHmmss')}.${fileExt}`;
 
     return this.asyncTasksService.runTask(TaskType.rpc, {name: 'getReport', params: {reportId, reportParams}}).pipe(
       tap((fileContent: any) => {
