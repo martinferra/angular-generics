@@ -14,6 +14,12 @@ import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
         (mouseup)="stopDragging()">
       </canvas>
     </div>`,
+  styles: [`
+    .disabled {
+      pointer-events: none;
+      filter: grayscale(100%) opacity(0.6);
+    }
+  `],
   providers: [
     {
       provide: NG_VALUE_ACCESSOR,
@@ -71,7 +77,15 @@ export class MultiSliderComponent implements AfterViewInit, ControlValueAccessor
   }
 
   setDisabledState?(isDisabled: boolean): void {
-    // Implement this if you need to disable the slider
+    const disabledClassName: string = 'disabled';
+    setTimeout(()=>{
+      const classList: DOMTokenList = this.canvas.nativeElement.classList;
+      if(isDisabled) {
+        classList.add(disabledClassName);
+      } else {
+        classList.remove(disabledClassName);
+      }
+    })
   }
   // ControlValueAccessor Interface Implementation: end
 
