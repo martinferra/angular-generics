@@ -1,8 +1,9 @@
 import { Injectable } from '@angular/core';
 import { TokenStorage } from '@app/shared/services/auth/token.storage';
 import { Observable, throwError } from 'rxjs';
-import { filter, map, tap } from 'rxjs/operators';
+import { concatMap, filter, map, tap } from 'rxjs/operators';
 import { webSocket, WebSocketSubject } from 'rxjs/webSocket';
+import { getMessageFromBlob } from 'common/generic/commonFunctions';
 
 export enum TaskType {
   rpc = 'rpc',
@@ -14,29 +15,6 @@ type Rpc = {
   params?: any;
 };
 
-function deserializer(rawMessage: any) {
-  if(rawMessage.data instanceof Blob) {
-    return {
-      type: 'blob',
-      data: rawMessage.data
-    }
-  } else if(typeof rawMessage.data === 'string') {
-    let messageObject: any;
-    try {
-      messageObject = JSON.parse(rawMessage.data);
-    } catch(e) {
-      return {
-        type: 'txt',
-        data: rawMessage.data
-      }
-    }
-    return {
-      type: messageObject.type || 'object',
-      data: messageObject.data || messageObject
-    }
-  }
-}
-
 @Injectable({
   providedIn: 'root'
 })
@@ -44,12 +22,42 @@ export class AsyncTasksService {
 
   constructor(private tokenStorage: TokenStorage) { }
 
+  private getMessageFromBlobOperator(type: TaskType): any {
+    const postProccessByDefault: boolean = type !== TaskType.subscription;
+    return (blob: Blob): Promise<any> => getMessageFromBlob(blob, postProccessByDefault)
+  }
+
+  private getKeepAliveOperator(socket$: any): any { 
+    return (message: any)=>{
+      if(message.type === 'keepAlive') {
+        let timeOut: number = message.payload.timeOut || 30000;
+        setTimeout(()=>{
+          if(!socket$.closed) {
+            socket$.next({type: 'keepAlive', spec: timeOut});
+          }
+        }, timeOut);
+      }
+    }
+  }
+  private isNotKeepAliveOperator: any = (message: any) => message.type !== 'keepAlive';
+
+  private errorOperator: any = (message: any) => {
+    if (message.type === 'error') {
+      throw new Error(JSON.stringify(message.payload));
+    }
+  }
+  private isNotErrorOperator: any = (message: any) => message.type !== 'error';
+
+  private payloadOperator: any = (message: any) => {
+    return message.payload || message;
+  }
+
   public runTask(type: TaskType, spec: string|number|Rpc): Observable<any> {
     let socket$: WebSocketSubject<any>;
     try {
       socket$ = webSocket({
         url: location.origin.replace(/^http/, 'ws'),
-        deserializer: deserializer
+        deserializer: msg => msg.data,
       });
     } catch(e) {
       let errorMessage = "Not specified";
@@ -66,31 +74,18 @@ export class AsyncTasksService {
       });
     } catch(e) {
       let errorMessage = "Not specified";
-      if (e instanceof Error) {
+      if(e instanceof Error) {
         errorMessage = e.message;
       }
       return throwError(() => new Error(`Error sending websocket data: AsyncTasksService -> runTask -> ${errorMessage}`));
     };
     return socket$.asObservable().pipe(
-      tap((message: any)=>{
-        if(message.type === 'keepAlive') {
-          console.log('keepAlive');
-          let timeOut: number = message.data.timeOut || 30000;
-          setTimeout(()=>{
-            if(!socket$.closed) {
-              socket$.next({type: 'keepAlive', spec: timeOut});
-            }
-          }, timeOut);
-        }
-      }),
-      filter((message: any) => message.type !== 'keepAlive'),
-      map( (message: any) => {
-        if(message.type !== 'error') {
-          return message.data;
-        } else {
-          throw new Error(JSON.stringify(message.data));
-        }
-      }),
+      concatMap(this.getMessageFromBlobOperator(type)),
+      tap(this.getKeepAliveOperator(socket$)),
+      filter(this.isNotKeepAliveOperator),
+      tap(this.errorOperator),
+      filter(this.isNotErrorOperator),
+      map(this.payloadOperator),
       tap(() => {
         if(type === TaskType.rpc) {
           socket$.complete();
