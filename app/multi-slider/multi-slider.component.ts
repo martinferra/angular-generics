@@ -1,4 +1,4 @@
-import { Component, Input, ElementRef, ViewChild, AfterViewInit, forwardRef } from '@angular/core';
+import { Component, Input, ElementRef, ViewChild, AfterViewInit, forwardRef, Output, EventEmitter } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 
 @Component({
@@ -32,6 +32,8 @@ export class MultiSliderComponent implements AfterViewInit, ControlValueAccessor
 
   @Input() inputRange: number[] = [0,1];
   @Input() colors: string[] = ['F6F6F6', 'F6F6F6'];
+  @Input() offsetXThreshold: number = 0;
+  @Output() onStopDragging: EventEmitter<number[]> = new EventEmitter<number[]>();
   private inputValues: number[] = [.5];
 
   @ViewChild('sliderCanvas') canvas!: ElementRef<HTMLCanvasElement>;
@@ -47,6 +49,7 @@ export class MultiSliderComponent implements AfterViewInit, ControlValueAccessor
   private slidersGap: number = this.sliderRadius*2;
   private xAxisYCoord!: number;
   private canvasEl!: HTMLCanvasElement;
+  private lastEmittedOffsetX: number | undefined;
 
   ngAfterViewInit(): void {
     this.initCanvas();
@@ -57,15 +60,15 @@ export class MultiSliderComponent implements AfterViewInit, ControlValueAccessor
   onTouched: any = () => {};
 
   writeValue(obj: any): void {
-    if (obj !== undefined) {
+    if (obj != undefined) {
       this.inputValues = obj;
-      /* Workaround: si no se utiliza setTimeout para ejecutar drawCanvas()
-         falla la registración y no se invoca a registerOnChange() */
-      setTimeout(()=>{
-        this.setSlidersInnerValues();
-        this.drawCanvas();
-      });
     }
+    /* Workaround: si no se utiliza setTimeout para ejecutar drawCanvas()
+      falla la registración y no se invoca a registerOnChange() */
+    setTimeout(()=>{
+      this.setSlidersInnerValues();
+      this.drawCanvas();
+    });
   }
 
   registerOnChange(fn: any): void {
@@ -211,6 +214,13 @@ export class MultiSliderComponent implements AfterViewInit, ControlValueAccessor
         this.sliderInnerValues[this.currentSliderIndex] = mouseX;
         this.inputValues[this.currentSliderIndex] = this.getOuterValue(mouseX);
         this.drawCanvas();
+        if (
+          this.lastEmittedOffsetX == null ||
+          Math.abs(mouseX - this.lastEmittedOffsetX) > this.offsetXThreshold
+        ) {
+          this.onChange(this.inputValues); // Notify Angular forms about the change
+          this.lastEmittedOffsetX = mouseX; // Update the last drawn offsetX
+        }
       }
     } else {
       this.updateCurrentSliderIndex(event);
@@ -219,9 +229,9 @@ export class MultiSliderComponent implements AfterViewInit, ControlValueAccessor
 
   stopDragging(): void {
     if(this.isDragging) {
-      this.onChange(this.inputValues); // Notify Angular forms about the change
       this.isDragging = false;
       this.drawCanvas();
+      this.onStopDragging.emit(this.inputValues);
     }
   }
 
