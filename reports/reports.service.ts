@@ -19,7 +19,15 @@ export class ReportsService {
 
     return this.asyncTasksService.runTask(TaskType.rpc, {name: 'getReport', params: {reportId, reportParams}}).pipe(
       tap((fileContent: any) => {
-        saveAs(fileContent instanceof Blob? fileContent : new Blob([fileContent]), fileName);
+        let blobContent;
+        if (fileContent instanceof Blob) {
+          blobContent = fileContent;
+        } else if (fileContent instanceof ArrayBuffer) {
+          blobContent = new Blob([new Uint8Array(fileContent)]);
+        } else {
+          blobContent = new Blob([fileContent]);
+        }
+        saveAs(blobContent, fileName);
       }),
       map(()=>{ return {
         message: fileName,
