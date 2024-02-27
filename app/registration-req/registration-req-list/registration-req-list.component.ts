@@ -9,13 +9,14 @@ import { RegistrationReq } from '../../../models/registration-req/registration-r
 import { User } from '../../../models/user/user.model';
 import { UserService } from '../../../models/user/user.service';
 import { ConfirmationDialogComponent } from '../../confirmation-dialog/confirmation-dialog.component';
+import { FloatingComponent } from 'src/generic/app/floating-component';
 
 @Component({
   selector: 'app-registration-req-list',
   templateUrl: './registration-req-list.component.html',
   styleUrls: ['./registration-req-list.component.scss'],
 })
-export class RegistrationReqListComponent implements OnInit {
+export class RegistrationReqListComponent implements FloatingComponent, OnInit {
   @ViewChild(MatPaginator, { static: false }) paginator!: MatPaginator;
 
   columnsToDisplay = ['email', 'fullname', 'actions'];
@@ -85,4 +86,7 @@ export class RegistrationReqListComponent implements OnInit {
         }
       });
   }
+
+  // FloatingComponent implementation
+  setElement?: (element: any) => void;
 }

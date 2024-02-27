@@ -8,13 +8,14 @@ import { User } from '../../../models/user/user.model';
 import { UserService } from '../../../models/user/user.service';
 import { UserNewEditDialogWrapperComponent } from '../user-new-edit/user-new-edit.component';
 import { ConfirmationDialogComponent } from '../../confirmation-dialog/confirmation-dialog.component';
+import { FloatingComponent } from 'src/generic/app/floating-component';
 
 @Component({
   selector: 'app-user-list',
   templateUrl: './user-list.component.html',
   styleUrls: ['./user-list.component.scss'],
 })
-export class UserListComponent implements OnInit {
+export class UserListComponent implements FloatingComponent, OnInit {
   @ViewChild(MatPaginator, { static: false }) paginator!: MatPaginator;
 
   columnsToDisplay = ['email', 'fullname', 'isAdmin', 'actions'];
@@ -82,4 +83,7 @@ export class UserListComponent implements OnInit {
         }
       });
   }
+
+    // FloatingComponent implementation
+    setElement?: (element: any) => void;
 }
