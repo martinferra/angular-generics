@@ -1,4 +1,4 @@
-import { Component, Input, ElementRef, ViewChild, AfterViewInit, forwardRef, Output, EventEmitter } from '@angular/core';
+import { Component, Input, ElementRef, ViewChild, AfterViewInit, OnChanges, forwardRef, Output, EventEmitter, SimpleChanges } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 
 @Component({
@@ -28,7 +28,7 @@ import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
     }
   ]
 })
-export class MultiSliderComponent implements AfterViewInit, ControlValueAccessor {
+export class MultiSliderComponent implements AfterViewInit, OnChanges, ControlValueAccessor {
 
   @Input() inputRange: number[] = [0,1];
   @Input() colors: string[] = ['F6F6F6', 'F6F6F6'];
@@ -53,6 +53,13 @@ export class MultiSliderComponent implements AfterViewInit, ControlValueAccessor
 
   ngAfterViewInit(): void {
     this.initCanvas();
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if(changes.inputRange) {
+      this.setSlidersInnerValues();
+      this.drawCanvas();
+    }
   }
 
   // ControlValueAccessor Interface Implementation: begin
