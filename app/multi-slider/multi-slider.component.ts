@@ -56,7 +56,7 @@ export class MultiSliderComponent implements AfterViewInit, OnChanges, ControlVa
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    if(changes.inputRange) {
+    if(changes.inputRange && !changes.inputRange.firstChange) {
       this.setSlidersInnerValues();
       this.drawCanvas();
     }
@@ -106,6 +106,7 @@ export class MultiSliderComponent implements AfterViewInit, OnChanges, ControlVa
   }
 
   private setSlidersInnerValues(): void {
+    if(!this.canvasEl) return;
     this.ranges = this.inputValues.length+1;
     var parentWidth: number = this.canvasEl.parentElement?.clientWidth || 300;
     this.canvasEl.width = parentWidth;  // Set canvas width (drawing buffer)
