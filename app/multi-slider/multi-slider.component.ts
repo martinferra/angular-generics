@@ -56,7 +56,7 @@ export class MultiSliderComponent implements AfterViewInit, OnChanges, ControlVa
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    if(changes.inputRange && !changes.inputRange.firstChange) {
+    if(changes.inputRange && !changes.inputRange.firstChange && this.ctx) {
       this.setSlidersInnerValues();
       this.drawCanvas();
     }
