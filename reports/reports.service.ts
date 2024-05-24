@@ -2,15 +2,17 @@ import { Injectable } from '@angular/core';
 import { saveAs } from 'file-saver';
 import moment from 'moment';
 import { Observable, of } from 'rxjs';
-import { catchError, map, startWith, tap } from 'rxjs/operators';
+import { catchError, concatMap, map, startWith, tap } from 'rxjs/operators';
 import { TaskState } from '../models/interfaces/taskState.interface';
 import { TaskType, AsyncTasksService } from './async-tasks.service';
+import { FileDownloadService } from 'src/generic/app/file-download/file-download.service';
 
 @Injectable()
 export class ReportsService {
 
   constructor(
-    private asyncTasksService: AsyncTasksService
+    private asyncTasksService: AsyncTasksService,
+    private fileDownloadService: FileDownloadService
   ) { }
 
   public getReport(reportId: string, filenamePreffix: string = '', fileExt: string, ...reportParams: any[]) : Observable<TaskState> {
@@ -18,6 +20,11 @@ export class ReportsService {
     const fileName = `${filenamePreffix || reportId}_${moment().format('YYYYMMDDHHmmss')}.${fileExt}`;
 
     return this.asyncTasksService.runTask(TaskType.rpc, {name: 'getReport', params: {reportId, reportParams}}).pipe(
+      concatMap( (fileData: any) => {
+        return typeof fileData === 'string'?
+          this.fileDownloadService.downloadFile(fileData) :
+          of(fileData);
+      }),
       tap((fileContent: any) => {
         let blobContent;
         if (fileContent instanceof Blob) {
