@@ -7,7 +7,7 @@ import { AsyncTasksService, TaskType } from '../reports/async-tasks.service';
 export abstract class DataService {
 
   constructor(
-    private http : HttpClient,
+    protected http : HttpClient,
     private asyncTasksService: AsyncTasksService
   ) {
     this.initializeMainEntityClass(this.mainEntityClass)
