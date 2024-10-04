@@ -27,4 +27,8 @@ export class UserService extends DataService {
     };
     return this.find(_query);
   }
+
+  findAutocompleteOptions(queryData: any, discriminator?: string): Observable<any> {
+    return this.find(queryData, 'findAutocompleteOptions', discriminator)
+  }
 }
