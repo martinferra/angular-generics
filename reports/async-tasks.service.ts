@@ -23,8 +23,8 @@ export class AsyncTasksService {
   constructor(private tokenStorage: TokenStorage) { }
 
   private getMessageFromBlobOperator(type: TaskType): any {
-    const postProccessByDefault: boolean = type !== TaskType.subscription;
-    return (blob: Blob): Promise<any> => getMessageFromBlob(blob, postProccessByDefault)
+    const postProcessByDefault: boolean = type !== TaskType.subscription;
+    return (blob: Blob): Promise<any> => getMessageFromBlob(blob, postProcessByDefault)
   }
 
   private getKeepAliveOperator(socket$: any): any { 
