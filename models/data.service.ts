@@ -8,7 +8,7 @@ export abstract class DataService {
 
   constructor(
     protected http : HttpClient,
-    private asyncTasksService: AsyncTasksService
+    protected asyncTasksService: AsyncTasksService
   ) {
     this.initializeMainEntityClass(this.mainEntityClass)
     this.getNestedEntityClasses().forEach( nestedEntityClass => this.initializeEntityClass(nestedEntityClass) )
