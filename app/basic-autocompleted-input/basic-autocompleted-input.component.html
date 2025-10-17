@@ -61,8 +61,8 @@
     </button>
 
     <mat-hint *ngIf="hint">{{ hint }}</mat-hint>
-    <mat-error *ngIf="elementCtrl.hasError('noElementSelected')">
-        {{ requiredErrorMessage }}
+    <mat-error *ngIf="hasErrors()">
+        {{ errorMessage }}
     </mat-error>
 </mat-form-field>              
 <mat-autocomplete

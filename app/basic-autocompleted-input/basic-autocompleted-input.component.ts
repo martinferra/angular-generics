@@ -1,14 +1,15 @@
 import { Component, Input, Output, OnInit, EventEmitter, ViewChild, ElementRef, AfterViewInit, forwardRef } from '@angular/core';
-import { ControlValueAccessor, UntypedFormControl, NG_VALUE_ACCESSOR } from '@angular/forms';
+import { ControlValueAccessor, UntypedFormControl, NG_VALUE_ACCESSOR, AbstractControl, ValidationErrors } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 
 import { map } from 'rxjs/internal/operators/map';
 import { tap } from 'rxjs/internal/operators/tap';
 import { Observable, Subject, of } from 'rxjs';
-import { mergeWith, shareReplay, startWith, switchMap, concatMap } from 'rxjs/operators';
+import { mergeWith, shareReplay, startWith, switchMap, concatMap, take } from 'rxjs/operators';
 import { StaticHtmlDirective } from '../static-html.directive';
 import { isInteger } from 'lodash';
 import { clone } from 'lodash';
+import { ControlValidator } from '../appValidators';
 
 function toString(inputValue: any): string { 
   return typeof inputValue === 'string'? inputValue : ''
@@ -58,6 +59,7 @@ export class BasicAutocompletedInputComponent<T> implements OnInit, AfterViewIni
   @Input() disabled: boolean = false;
   @Input() defaultElementsList$!: Observable<T[]> | undefined; 
   @Input() showTooltip: boolean = true;
+  @Input() controlValidator!: ControlValidator;
 
   @Output() afterViewInitEmitter: EventEmitter<any> = new EventEmitter<any>();
 
@@ -85,6 +87,7 @@ export class BasicAutocompletedInputComponent<T> implements OnInit, AfterViewIni
     if(emitChange) {
       this.onChange(null);
     }
+    this.elementCtrl.updateValueAndValidity({emitEvent: false});
   }
 
   get elementSelected(): boolean {
@@ -100,6 +103,7 @@ export class BasicAutocompletedInputComponent<T> implements OnInit, AfterViewIni
       }
     };
     this.elementCtrl.setValue(this.selectedElement, {emitEvent: !element});
+    this.elementCtrl.updateValueAndValidity({emitEvent: false});
   }
 
   get editing(): boolean {
@@ -212,8 +216,36 @@ export class BasicAutocompletedInputComponent<T> implements OnInit, AfterViewIni
     }
   }
 
+  private getOuterValidatorFn(): any {
+    // El objeto "thisComponent" se pasa via closure a la función interna
+    var thisComponent: BasicAutocompletedInputComponent<T> = this;
+    return (control: AbstractControl): Observable<ValidationErrors|null> => {
+      let err: ValidationErrors = { outerValidatorError: true };
+      let returnObs$: Observable<ValidationErrors|null>;
+      switch(thisComponent.controlValidator.control.status) {
+        case 'VALID':
+          returnObs$ = of(null);
+          break;
+        case 'INVALID':
+          returnObs$ = of(err);
+          break;
+        case 'PENDING':
+          returnObs$ = thisComponent.controlValidator.control.statusChanges.pipe(
+            map( status => status === 'VALID'? null : err ),
+            take(1) // Add this to complete the observable
+          );
+          break;
+        default:
+          returnObs$ = of(null);
+      }
+      return returnObs$.pipe(
+        tap( validationErrors => console.log('Outer validator emitted: ', validationErrors) )
+      )
+    };
+  }
+
   private initializeFormControl() {
-    let validators;
+    let validators, asyncValidators;
 
     if (this.validators && this.validators instanceof Array) {
       validators = this.validators;
@@ -225,17 +257,31 @@ export class BasicAutocompletedInputComponent<T> implements OnInit, AfterViewIni
       validators = [];
     }
 
+    if (this.asyncValidators && this.asyncValidators instanceof Array) {
+      asyncValidators = this.asyncValidators;
+    }
+    else if (this.asyncValidators) {
+      asyncValidators = [this.asyncValidators];
+    }
+    else {
+      asyncValidators = [];
+    } 
+
     validators.push(getElementSelectedValidatorFn( 
       this.requiredFn !== undefined?
         () => !(this.requiredFn() && this.noElementSelected) :
         () => !(this.required && this.noElementSelected)
     ));
 
+    if (this.controlValidator) {
+      asyncValidators.push(this.getOuterValidatorFn());
+    }
+
     this.elementCtrl = new UntypedFormControl(
       this.initialValue,
       {
         validators: validators,
-        asyncValidators: this.asyncValidators
+        asyncValidators: asyncValidators
       }
     );
   }
@@ -263,7 +309,7 @@ export class BasicAutocompletedInputComponent<T> implements OnInit, AfterViewIni
   private processNewValue(value: any) {
     if (value && typeof value !== 'string') {
       let outputOuterElement = this.getOuterElement(value)
-      if (outputOuterElement.isNew()) {
+      if (!Boolean(outputOuterElement._id)) {
         this.openDialog(outputOuterElement);
       } else {
         this.setSelectedElement(value);
@@ -298,7 +344,7 @@ export class BasicAutocompletedInputComponent<T> implements OnInit, AfterViewIni
 
   displayElementInList(innerFilteredElement: any): string {
     let str = this.displayElementInListFn(innerFilteredElement);
-    let isNew = this.getOuterElement(innerFilteredElement).isNew();
+    let isNew = !Boolean((this.getOuterElement(innerFilteredElement))._id);
     return isNew? `"${str}" (crear nuevo)` : str
   }
 
@@ -352,7 +398,7 @@ export class BasicAutocompletedInputComponent<T> implements OnInit, AfterViewIni
   }
 
   public hasErrors(): boolean {
-    return !!this.elementCtrl.errors
+    return this.elementCtrl.invalid;
   }
 
   get showEditButton(): boolean {
@@ -387,5 +433,12 @@ export class BasicAutocompletedInputComponent<T> implements OnInit, AfterViewIni
 
   public get value(): any {
     return (typeof this.elementCtrl.value !== 'string')? this.elementCtrl.value : null
+  }
+
+  get errorMessage(): string | null {
+    if(this.required && this.noElementSelected) {
+      return this.requiredErrorMessage || 'Este campo es requerido'
+    }
+    return this.controlValidator?.errorMessage
   }
 } 
