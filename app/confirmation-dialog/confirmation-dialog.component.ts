@@ -22,4 +22,8 @@ export class ConfirmationDialogComponent implements OnInit {
   confirm(): void {
     this.dialog.close(true);
   }
+
+  get showCancelBtn(): boolean {
+    return Boolean(this.dialogData?.showCancelBtn !== false);
+  }
 }
