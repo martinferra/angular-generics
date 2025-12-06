@@ -27,7 +27,7 @@ export abstract class DataService {
     let saveMethodName: string = mainEntityClass.prototype.save? '_save' : 'save'
 
     mainEntityClass.prototype[saveMethodName] = function(discriminator?: string) {
-      return this.constructor[dataServiceName].save(this, discriminator);
+      return this.constructor[dataServiceName].save(this, 'save', discriminator);
     };
 
     mainEntityClass.prototype.remove = function() {
