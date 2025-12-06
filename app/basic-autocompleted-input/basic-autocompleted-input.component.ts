@@ -53,6 +53,7 @@ export class BasicAutocompletedInputComponent<T> implements OnInit, AfterViewIni
   @Input() hint: string = "";
   @Input() panelWidth!: number | string;
   @Input() allowEditing: boolean = false;
+  @Input() allowClear: boolean = true;
   @Input() contextData: any = {};
   @Input() tabIndex: number | boolean = 0;
   @Input() entityName!: string;

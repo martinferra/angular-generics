@@ -23,7 +23,7 @@
             </div>
             <button
                 type="button"
-                *ngIf="!noElementSelected && !disabled"
+                *ngIf="allowClear && !noElementSelected && !disabled"
                 mat-icon-button
                 [disabled]="disabled"
                 tabindex="-1"
