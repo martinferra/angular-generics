@@ -222,8 +222,14 @@ export abstract class DataService {
     )
   }
 
-  public custom(customFnName: string, params: any, convertToClassInstance?: boolean, discriminator?: string) : Observable<any> {
-    let ret =  this.http.post(this.getUri(customFnName, discriminator), params);
+  public custom(
+    customFnName: string, 
+    params: any, 
+    convertToClassInstance?: boolean, 
+    discriminator?: string,
+    httpMethod: 'get' | 'post' = 'post'
+  ) : Observable<any> {
+    let ret = this.http[httpMethod](this.getUri(customFnName, discriminator), params);
     if(convertToClassInstance) {
       ret = ret.pipe(map(plainObject => this.convertToClassInstance(plainObject, discriminator)))
     };
