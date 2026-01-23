@@ -23,7 +23,15 @@ export class ConfirmationDialogComponent implements OnInit {
     this.dialog.close(true);
   }
 
+  get confirmBtnText(): string {
+    return this.dialogData?.confirmBtnText || 'Aceptar';
+  }
+
   get showCancelBtn(): boolean {
     return Boolean(this.dialogData?.showCancelBtn !== false);
+  }
+
+  get cancelBtnText(): string {
+    return this.dialogData?.cancelBtnText || 'Cancelar';
   }
 }

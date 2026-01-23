@@ -1,10 +1,10 @@
 <h1 mat-dialog-title>{{dialogData.title}}</h1>
 <div mat-dialog-content>
-    <p>{{dialogData.message}}</p>
+    <p class="dialog-message">{{dialogData.message}}</p>
 </div>
 <div mat-dialog-actions>
     @if (showCancelBtn) {
-        <button mat-button (click)="cancell()" cdkFocusInitial>{{dialogData.cancelBtnText}}</button>
+        <button mat-button (click)="cancell()" cdkFocusInitial>{{cancelBtnText}}</button>
     }
-    <button mat-button (click)="confirm()">{{dialogData.confirmBtnText}}</button>
+    <button mat-button (click)="confirm()">{{confirmBtnText}}</button>
 </div>
