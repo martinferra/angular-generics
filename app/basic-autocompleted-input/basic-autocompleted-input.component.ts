@@ -1,6 +1,13 @@
 import { Component, Input, Output, OnInit, EventEmitter, ViewChild, ElementRef, AfterViewInit, forwardRef } from '@angular/core';
-import { ControlValueAccessor, UntypedFormControl, NG_VALUE_ACCESSOR, AbstractControl, ValidationErrors } from '@angular/forms';
-import { MatDialog } from '@angular/material/dialog';
+import { CommonModule } from '@angular/common';
+import { ControlValueAccessor, UntypedFormControl, NG_VALUE_ACCESSOR, AbstractControl, ValidationErrors, ReactiveFormsModule } from '@angular/forms';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatAutocompleteModule } from '@angular/material/autocomplete';
+import { MatIconModule } from '@angular/material/icon';
+import { MatButtonModule } from '@angular/material/button';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 import { map } from 'rxjs/internal/operators/map';
 import { tap } from 'rxjs/internal/operators/tap';
@@ -33,6 +40,19 @@ enum ComponentState {
   selector: 'app-basic-autocompleted-input',
   templateUrl: './basic-autocompleted-input.component.html',
   styleUrls: ['./basic-autocompleted-input.component.scss'],
+  standalone: true,
+  imports: [
+    CommonModule,
+    ReactiveFormsModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatAutocompleteModule,
+    MatIconModule,
+    MatButtonModule,
+    MatTooltipModule,
+    MatDialogModule,
+    StaticHtmlDirective
+  ],
   providers: [
     {
       provide: NG_VALUE_ACCESSOR,

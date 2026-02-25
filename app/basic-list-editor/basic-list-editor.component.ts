@@ -1,11 +1,28 @@
 import { Component, Input, OnInit, ViewChild, SimpleChanges, OnChanges, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
-import { MatDialog } from '@angular/material/dialog';
-import { MatTable } from '@angular/material/table';
+import { CommonModule } from '@angular/common';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { MatTable, MatTableModule } from '@angular/material/table';
+import { MatCardModule } from '@angular/material/card';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { MatDividerModule } from '@angular/material/divider';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 @Component({
   selector: 'app-basic-list-editor',
   templateUrl: './basic-list-editor.component.html',
   styleUrls: ['./basic-list-editor.component.scss'],
+  standalone: true,
+  imports: [
+    CommonModule,
+    MatTableModule,
+    MatCardModule,
+    MatButtonModule,
+    MatIconModule,
+    MatDividerModule,
+    MatTooltipModule,
+    MatDialogModule
+  ],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class BasicListEditorComponent implements OnInit, OnChanges {

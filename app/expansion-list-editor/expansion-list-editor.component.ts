@@ -1,5 +1,10 @@
 import { Component, Input, EventEmitter, ChangeDetectionStrategy, ViewChildren, QueryList, ComponentFactoryResolver, Output, ComponentFactory, ChangeDetectorRef, OnChanges, SimpleChanges } from '@angular/core';
-import { MatExpansionPanel } from '@angular/material/expansion';
+import { CommonModule } from '@angular/common';
+import { MatExpansionModule, MatExpansionPanel } from '@angular/material/expansion';
+import { MatCardModule } from '@angular/material/card';
+import { MatIconModule } from '@angular/material/icon';
+import { MatButtonModule } from '@angular/material/button';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { EditorContainerDirective } from './editorContainer.directive';
 import { ComponentResolverService, operations } from '../../../generic/models/component-resolver.service';
 import { forkJoin, Observable, of, Subscription } from 'rxjs';
@@ -19,7 +24,9 @@ enum ItemState {
   selector: 'app-expansion-list-editor',
   templateUrl: './expansion-list-editor.component.html',
   styleUrls: ['./expansion-list-editor.component.scss'],
-  changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  standalone: true,
+  imports: [CommonModule, MatExpansionModule, MatCardModule, MatIconModule, MatButtonModule, MatTooltipModule, EditorContainerDirective],
 })
 export class ExpansionListEditorComponent implements OnInit, OnChanges, ExpandableListComponent  {
 

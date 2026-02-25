@@ -1,9 +1,16 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { MatIconModule } from '@angular/material/icon';
 
 @Component({
   selector: 'app-check-cards-group',
   templateUrl: './check-cards-group.component.html',
-  styleUrls: ['./check-cards-group.component.scss']
+  styleUrls: ['./check-cards-group.component.scss'],
+  standalone: true,
+  imports: [
+    CommonModule,
+    MatIconModule
+  ]
 })
 export class CheckCardsGroupComponent implements OnInit {
 

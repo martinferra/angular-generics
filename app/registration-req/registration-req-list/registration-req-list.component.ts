@@ -1,9 +1,14 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { MatTableDataSource } from '@angular/material/table';
-import { MatPaginator } from '@angular/material/paginator';
-import { MatDialog } from '@angular/material/dialog';
+import { MatTableDataSource, MatTableModule } from '@angular/material/table';
+import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { MatDividerModule } from '@angular/material/divider';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { RegistrationReqService } from '../../../models/registration-req/registration-req.service';
 import { RegistrationReq } from '../../../models/registration-req/registration-req.model';
 import { User } from '../../../models/user/user.model';
@@ -15,6 +20,17 @@ import { FloatingComponent } from 'src/generic/app/floating-component';
   selector: 'app-registration-req-list',
   templateUrl: './registration-req-list.component.html',
   styleUrls: ['./registration-req-list.component.scss'],
+  standalone: true,
+  imports: [
+    CommonModule,
+    MatTableModule,
+    MatPaginatorModule,
+    MatButtonModule,
+    MatIconModule,
+    MatDividerModule,
+    MatTooltipModule,
+    MatDialogModule
+  ]
 })
 export class RegistrationReqListComponent implements FloatingComponent, OnInit {
   @ViewChild(MatPaginator, { static: false }) paginator!: MatPaginator;

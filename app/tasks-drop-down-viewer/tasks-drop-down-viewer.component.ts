@@ -1,13 +1,20 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { Subscription } from 'rxjs';
 import { TaskState } from '../../../generic/models/interfaces/taskState.interface';
 import { BackgroundTasksService } from '../services/backgroundTasks/background-tasks.service';
-import { ProgressSpinnerMode } from '@angular/material/progress-spinner';
+import { ProgressSpinnerMode, MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatMenuModule } from '@angular/material/menu';
+import { MatIconModule } from '@angular/material/icon';
+import { MatDividerModule } from '@angular/material/divider';
+import { MatButtonModule } from '@angular/material/button';
 
 @Component({
   selector: 'app-tasks-drop-down-viewer',
   templateUrl: './tasks-drop-down-viewer.component.html',
-  styleUrls: ['./tasks-drop-down-viewer.component.scss']
+  styleUrls: ['./tasks-drop-down-viewer.component.scss'],
+  standalone: true,
+  imports: [CommonModule, MatMenuModule, MatIconModule, MatDividerModule, MatButtonModule, MatProgressSpinnerModule],
 })
 export class TasksDropDownViewerComponent implements OnInit, OnDestroy {
 

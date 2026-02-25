@@ -6,13 +6,19 @@ import {
   Output,
   EventEmitter,
 } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import {
   UntypedFormArray,
   UntypedFormBuilder,
   UntypedFormGroup,
+  ReactiveFormsModule,
 } from '@angular/forms';
 import { Validators } from '@angular/forms';
-import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { MatDialogRef, MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatButtonModule } from '@angular/material/button';
 import { cloneDeep } from 'lodash';
 
 import {
@@ -25,33 +31,11 @@ import {
 import { User } from '../../../models/user/user.model';
 
 @Component({
-  selector: 'app-user-new-edit-dialog-wrapper',
-  template: ` <app-user-new-edit
-    [user]="inputData.element"
-    (close)="close($event)"
-  >
-  </app-user-new-edit>`,
-  styleUrls: ['./user-new-edit.component.scss'],
-})
-export class UserNewEditDialogWrapperComponent {
-  inputData;
-
-  constructor(
-    public dialogRef: MatDialogRef<UserNewEditDialogWrapperComponent>,
-    @Inject(MAT_DIALOG_DATA) public dialogData: any
-  ) {
-    this.inputData = dialogData;
-  }
-
-  public close(user: any) {
-    this.dialogRef.close(user);
-  }
-}
-
-@Component({
   selector: 'app-user-new-edit',
   templateUrl: './user-new-edit.component.html',
   styleUrls: ['./user-new-edit.component.scss'],
+  standalone: true,
+  imports: [CommonModule, ReactiveFormsModule, MatDialogModule, MatFormFieldModule, MatInputModule, MatCheckboxModule, MatButtonModule],
 })
 export class UserNewEditComponent implements OnInit {
   @Input() user!: User;
@@ -173,5 +157,31 @@ export class UserNewEditComponent implements OnInit {
       this.close.emit(this.user);
     });
     this.valueEmitted = true;
+  }
+}
+
+@Component({
+  selector: 'app-user-new-edit-dialog-wrapper',
+  template: ` <app-user-new-edit
+    [user]="inputData.element"
+    (close)="close($event)"
+  >
+  </app-user-new-edit>`,
+  styleUrls: ['./user-new-edit.component.scss'],
+  standalone: true,
+  imports: [UserNewEditComponent],
+})
+export class UserNewEditDialogWrapperComponent {
+  inputData;
+
+  constructor(
+    public dialogRef: MatDialogRef<UserNewEditDialogWrapperComponent>,
+    @Inject(MAT_DIALOG_DATA) public dialogData: any
+  ) {
+    this.inputData = dialogData;
+  }
+
+  public close(user: any) {
+    this.dialogRef.close(user);
   }
 }

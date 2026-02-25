@@ -26,7 +26,9 @@ import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
       useExisting: forwardRef(() => MultiSliderComponent),
       multi: true
     }
-  ]
+  ],
+  standalone: true,
+  imports: []
 })
 export class MultiSliderComponent implements AfterViewInit, OnChanges, ControlValueAccessor {
 
