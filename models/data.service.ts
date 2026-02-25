@@ -121,7 +121,7 @@ export abstract class DataService {
     return plainToClass(cls, plainObject);
   }
 
-  private convertToClassInstance(plainObject: any, discriminator?: string): any {
+  protected convertToClassInstance(plainObject: any, discriminator?: string): any {
     let obj: any;
     if(this.mainEntityClass.childClasses) {
       if(plainObject instanceof Array) {
